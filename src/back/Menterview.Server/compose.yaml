@@ -1,0 +1,6 @@
+﻿services:
+  menterview.api:
+    image: menterview.api
+    build:
+      context: .
+      dockerfile: Menterview.Api/Dockerfile
