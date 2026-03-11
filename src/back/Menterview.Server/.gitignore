@@ -487,3 +487,5 @@ idea
 idea/
 
 appsettings.Development.json
+
+Migrations/
