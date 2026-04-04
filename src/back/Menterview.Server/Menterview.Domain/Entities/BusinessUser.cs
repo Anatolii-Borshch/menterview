@@ -1,13 +1,11 @@
 ﻿namespace Menterview.Domain.Entities
 {
-    public class User
+    public class BusinessUser
     {
-        public long UserId { get; set; }
+        public Guid UserId { get; set; }
         
         public string FirstName { get; set; } = null!;
         public string LasName { get; set; } = null!;
-        public string EmailAddress { get; set; } = null!;
-
         public DateTime CreatedAt { get; set; }
 
         public int CategoryId { get; set; }

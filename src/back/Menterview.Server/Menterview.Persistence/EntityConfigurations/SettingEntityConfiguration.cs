@@ -10,7 +10,7 @@ namespace Menterview.Persistence.EntityConfigurations
         {
             builder.HasKey(x => x.UserId);
             
-            builder.HasOne(x => x.User)
+            builder.HasOne(x => x.BusinessUser)
                 .WithOne(x => x.Setting)
                 .HasForeignKey<Setting>(x => x.UserId);
 

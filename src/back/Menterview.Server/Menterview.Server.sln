@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Menterview.Persistence", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Menterview.Identity", "Menterview.Identity\Menterview.Identity.csproj", "{74019928-C4A4-43A9-94DC-0E2486DF3A47}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Menterview.Infrastructure", "Menterview.Infrastructure\Menterview.Infrastructure.csproj", "{812B06D9-D708-4E08-9DF6-EE62B830548B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,7 @@ Global
 		{486E66C3-DBE3-44EC-B2E8-8C7D43B264ED} = {E59EEE16-9733-4E77-B7EC-7EBC4D998D9C}
 		{DD4D1106-B72E-47AB-822A-1A86E411FE07} = {701BCF8C-C778-4717-8CC6-FA8B91895EBE}
 		{74019928-C4A4-43A9-94DC-0E2486DF3A47} = {701BCF8C-C778-4717-8CC6-FA8B91895EBE}
+		{812B06D9-D708-4E08-9DF6-EE62B830548B} = {701BCF8C-C778-4717-8CC6-FA8B91895EBE}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{622171F7-867E-4649-ACE3-8537F06C834E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -59,5 +62,9 @@ Global
 		{74019928-C4A4-43A9-94DC-0E2486DF3A47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74019928-C4A4-43A9-94DC-0E2486DF3A47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74019928-C4A4-43A9-94DC-0E2486DF3A47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{812B06D9-D708-4E08-9DF6-EE62B830548B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{812B06D9-D708-4E08-9DF6-EE62B830548B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{812B06D9-D708-4E08-9DF6-EE62B830548B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{812B06D9-D708-4E08-9DF6-EE62B830548B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

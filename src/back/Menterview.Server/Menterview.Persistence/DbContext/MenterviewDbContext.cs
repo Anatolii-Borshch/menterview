@@ -16,7 +16,7 @@ namespace Menterview.Persistence.DbContext
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuestionTag> QuestionTags { get; set; }
         public DbSet<Role> Roles { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<BusinessUser> Users { get; set; }
         public DbSet<SessionStory> SessionStories { get; set; }
         public DbSet<Setting> Settings { get; set; }
         public DbSet<Tag> Tags { get; set; }
@@ -31,6 +31,15 @@ namespace Menterview.Persistence.DbContext
             base.OnModelCreating(builder);
             
             builder.ApplyConfigurationsFromAssembly(typeof(MenterviewDbContext).Assembly);
+            
+            builder.Entity<Category>().HasData(
+                new Category { CategoryId = 1, CategoryName = "Java" }
+            );
+
+            builder.Entity<Role>().HasData(
+                new Role { RoleId = 1, RoleName = "Administrator" },
+                new Role { RoleId = 2, RoleName = "User" }
+            );
         }
     }
 }

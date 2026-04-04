@@ -10,8 +10,8 @@
 
         public DateTime Time { get; set; }
 
-        public long UserId { get; set; }
-        public User User { get; set; } = null!;
+        public Guid UserId { get; set; }
+        public BusinessUser BusinessUser { get; set; } = null!;
 
         public ICollection<Answer> Answers { get; set; } = new List<Answer>();
     }

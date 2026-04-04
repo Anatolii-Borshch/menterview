@@ -20,7 +20,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Menterview.Application\Menterview.Application.csproj" />
       <ProjectReference Include="..\Menterview.Domain\Menterview.Domain.csproj" />
+      <ProjectReference Include="..\Menterview.Identity\Menterview.Identity.csproj" />
     </ItemGroup>
 
 </Project>

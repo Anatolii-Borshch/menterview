@@ -1,6 +1,43 @@
-﻿services:
+﻿version: '3.8'
+
+services:
   menterview.api:
     image: menterview.api
     build:
       context: .
       dockerfile: Menterview.Api/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      menterview.db:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=menterview.db;Port=5432;Database=mentordb;Username=postgres;Password=postgres
+    networks:
+      - menterview-network
+
+  menterview.db:
+    image: postgres:16-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: mentordb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - menterview-network
+
+volumes:
+  postgres_data:
+
+networks:
+  menterview-network:
+    driver: bridge

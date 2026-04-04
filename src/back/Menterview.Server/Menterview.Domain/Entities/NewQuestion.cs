@@ -7,7 +7,7 @@
         public string Question { get; set; } = null!;
         public string Answer { get; set; } = null!;
 
-        public long? UserId { get; set; }
-        public User? User { get; set; }
+        public Guid? UserId { get; set; }
+        public BusinessUser? User { get; set; }
     }
 }
