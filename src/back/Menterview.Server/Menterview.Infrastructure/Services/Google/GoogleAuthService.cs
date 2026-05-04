@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Auth;
 using Menterview.Application.Contracts.Auth;
+using Menterview.Application.Dtos.Auth;
 using Menterview.Application.Models.Auth;
 using Microsoft.Extensions.Configuration;
 

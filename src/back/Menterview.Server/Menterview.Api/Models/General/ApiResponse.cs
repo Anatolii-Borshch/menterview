@@ -1,4 +1,4 @@
-﻿namespace Menterview.Api.Models;
+﻿namespace Menterview.Api.Models.General;
 
 public class ApiResponse
 {

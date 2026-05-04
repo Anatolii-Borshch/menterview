@@ -21,6 +21,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Menterview.Identity\Menterview.Identity.csproj" />
       <ProjectReference Include="..\Menterview.Persistence\Menterview.Persistence.csproj" />
+      <ProjectReference Include="..\Menterview.Application\Menterview.Application.csproj" />
     </ItemGroup>
 
 </Project>

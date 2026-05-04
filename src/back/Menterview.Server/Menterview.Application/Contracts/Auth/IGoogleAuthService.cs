@@ -1,4 +1,5 @@
-﻿using Menterview.Application.Models.Auth;
+﻿using Menterview.Application.Dtos.Auth;
+using Menterview.Application.Models.Auth;
 
 namespace Menterview.Application.Contracts.Auth;
 

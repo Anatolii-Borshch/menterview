@@ -16,6 +16,10 @@
 
         public Setting Setting { get; set; } = null!;
 
+        public bool IsDeleted { get; set; }
+
+        public DateTime DeletedAt { get; set;}
+
         public ICollection<SessionStory> Sessions { get; set; } = new List<SessionStory>();
         public ICollection<NewQuestion> SuggestedQuestions { get; set; } = new List<NewQuestion>();
     }

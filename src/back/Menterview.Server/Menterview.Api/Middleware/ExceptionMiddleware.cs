@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
 using Menterview.Api.Models;
+using Menterview.Api.Models.General;
 using Menterview.Application.Contracts.Loggining;
 
 namespace Menterview.Api.Middleware;

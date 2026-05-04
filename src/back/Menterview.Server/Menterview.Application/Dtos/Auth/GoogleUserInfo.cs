@@ -1,4 +1,4 @@
-﻿namespace Menterview.Application.Models.Auth;
+﻿namespace Menterview.Application.Dtos.Auth;
 
 public class GoogleUserInfo
 {

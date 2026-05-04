@@ -1,6 +1,5 @@
 ﻿namespace Menterview.Application.Models.Application;
 
-
 public record CreateUserRequest(
     string Email,
     string? Password,

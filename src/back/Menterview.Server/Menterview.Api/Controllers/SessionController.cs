@@ -1,0 +1,53 @@
+using Menterview.Api.Models.General;
+using Menterview.Api.Models.Sessions;
+using Menterview.Application.Dtos.Session;
+using Menterview.Application.Dtos.Stats;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Menterview.Api.Controllers;
+
+[ApiController]
+[Route("api/sessions")]
+[Authorize]
+public class SessionController : ControllerBase
+{
+    public SessionController() { }
+
+    // GET api/sessions
+    // Paginated session history for the authenticated user
+    [HttpGet]
+    public async Task<ActionResult<ApiResponse<PagedResult<SessionListItemDto>>>> GetSessionHistory(
+        [FromQuery] GetSessionsQuery query)
+    {
+        throw new NotImplementedException();
+    }
+
+    // GET api/sessions/{sessionId:long}
+    // Full session details with answer breakdown
+    [HttpGet("{sessionId:long}")]
+    public async Task<ActionResult<ApiResponse<SessionDetailsDto>>> GetSessionDetails(
+        long sessionId)
+    {
+        throw new NotImplementedException();
+    }
+
+    // GET api/sessions/stats
+    // Trend data across all sessions — accuracy, time, progress
+    [HttpGet("stats")]
+    public async Task<ActionResult<ApiResponse<UserSessionStatsDto>>> GetSessionStats(
+        [FromQuery] GetSessionStatsQuery query)
+    {
+        throw new NotImplementedException();
+    }
+
+    // GET api/sessions/{sessionId:long}/export
+    // Export single session as PDF
+    [HttpGet("{sessionId:long}/export")]
+    public async Task<IActionResult> ExportSessionPdf(long sessionId)
+    {
+        // Returns raw PDF file, not wrapped in ApiResponse
+        // Content-Type: application/pdf
+        throw new NotImplementedException();
+    }
+}

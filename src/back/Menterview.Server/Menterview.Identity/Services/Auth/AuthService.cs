@@ -144,6 +144,23 @@ public class AuthService : IAuthService
         await _refreshTokenRepo.SaveAsync(token, ct);
     }
 
+    public async Task<AuthResponse> RefreshAsync(RefreshTokenRequest request, CancellationToken ct = default)
+    {
+        var refreshToken = await _refreshTokenRepo.GetActiveByTokenAsync(request.RefreshToken, ct)
+                           ?? throw new UnauthorizedAccessException("Invalid or expired refresh token.");
+
+        var identityUser = await _userManager.FindByIdAsync(refreshToken.IdentityUserId)
+                           ?? throw new UnauthorizedAccessException("User not found.");
+
+        var user = await _userRepo.GetByIdAsync(Guid.Parse(refreshToken.IdentityUserId))
+                   ?? throw new UnauthorizedAccessException("User not found.");
+
+        refreshToken.RevokedAt = DateTime.UtcNow;
+        await _refreshTokenRepo.SaveAsync(refreshToken, ct);
+
+        return await IssueTokensAsync(user, ct);
+    }
+
     private async Task<AuthResponse> IssueTokensAsync(User user, CancellationToken ct)
     {
         var identityUser = await _userManager.FindByIdAsync(user.UserId.ToString())!;

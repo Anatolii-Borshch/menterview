@@ -10,4 +10,5 @@ public interface IAuthService
     Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken ct = default);
     Task<AuthResponse> GoogleLoginAsync(GoogleUserInfo googleUser, int defaultCategoryId = 1, CancellationToken ct = default);
     Task LogoutAsync(LogoutRequest request, CancellationToken ct = default);
+    Task<AuthResponse> RefreshAsync(RefreshTokenRequest request, CancellationToken ct = default);
 }

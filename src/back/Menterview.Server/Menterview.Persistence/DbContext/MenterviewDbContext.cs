@@ -13,6 +13,7 @@ namespace Menterview.Persistence.DbContext
         public DbSet<Category> Categories { get; set; }
         public DbSet<Difficulty> Difficulties { get; set; }
         public DbSet<NewQuestion> NewQuestions { get; set; }
+        public DbSet<NewQuestionTag> NewQuestionTags { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuestionTag> QuestionTags { get; set; }
         public DbSet<Role> Roles { get; set; }
