@@ -6,4 +6,23 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.24" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.24">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.24">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Menterview.Application\Menterview.Application.csproj" />
+      <ProjectReference Include="..\Menterview.Domain\Menterview.Domain.csproj" />
+      <ProjectReference Include="..\Menterview.Identity\Menterview.Identity.csproj" />
+    </ItemGroup>
+
 </Project>
