@@ -50,4 +50,34 @@ public class SessionController : ControllerBase
         // Content-Type: application/pdf
         throw new NotImplementedException();
     }
+    // POST api/sessions/start
+    // API builds question list, spawns AI worker container,
+    // returns session token + worker connection info to client
+    [HttpPost("start")]
+    public async Task<ActionResult<ApiResponse<SessionStartedDto>>> StartSession(
+        StartSessionRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    // POST api/sessions/finish
+    // Called by AI worker (not client) when session ends
+    // Validates worker JWT, persists results, triggers gap analysis
+    [HttpPost("finish")]
+    [Authorize(Policy = "AiWorkerOnly")]
+    public async Task<ActionResult<ApiResponse>> FinishSession(
+        FinishSessionRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    // GET api/sessions/{sessionId:long}/answers
+    // Detailed per-answer analysis for a single session
+    // Covers: "Viewing detailed answer analysis"
+    [HttpGet("{sessionId:long}/answers")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<AnswerBreakdownDto>>>> GetAnswerAnalysis(
+        long sessionId)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -13,6 +13,12 @@
         public Guid UserId { get; set; }
         public BusinessUser BusinessUser { get; set; } = null!;
 
+        public int? CategoryId { get; set; }
+        public Category? Category { get; set; }
+        
+        public int? DifficultyId { get; set; }
+        public Difficulty? Difficulty { get; set; }
+
         public ICollection<Answer> Answers { get; set; } = new List<Answer>();
     }
 }

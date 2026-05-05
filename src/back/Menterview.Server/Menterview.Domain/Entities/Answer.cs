@@ -14,5 +14,10 @@
         
         public long SessionId { get; set; }
         public SessionStory Session { get; set; } = null!;
+
+        public bool WasRephrased { get; set; }
+        public bool WasWeakTopicReview { get; set; }
+        
+        public string? RephrasedText { get; set; }
     }
 }

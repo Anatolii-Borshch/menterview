@@ -1,3 +1,4 @@
+using Menterview.Application.Dtos.Sub;
 
 namespace Menterview.Application.Dtos.Session;
 
@@ -9,4 +10,6 @@ public class SessionListItemDto
     public int AnsweredCount { get; set; }
     public int TotalTime { get; set; }
     public double AverageAccuracy { get; set; }
+    public CategoryDto Category { get; set; } = null!;
+    public DifficultyDto Difficulty { get; set; } = null!;
 }
