@@ -1,0 +1,97 @@
+﻿version: '3.8'
+services:
+  menterview.api:
+    image: menterview.api
+    build:
+      context: ./src/back/Menterview.Server
+      dockerfile: Menterview.Api/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      menterview.db:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=menterview.db;Port=5432;Database=mentordb;Username=postgres;Password=postgres
+    networks:
+      - menterview-network
+
+  menterview.db:
+    image: postgres:16-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: mentordb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - menterview-network
+
+  menterview.worker-manager:
+    build:
+      context: ./src/back/worker-manager
+      dockerfile: Dockerfile
+    ports:
+      - "6000:6000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - GRPC_PORT=6000
+      - WORKER_IMAGE=menterview/ai-worker:latest
+      - WORKER_HOST=localhost
+      - CALLBACK_ADDRESS=menterview.api:5001
+      - LLM_API_KEY=${LLM_API_KEY}
+      - PORT_RANGE_START=51000
+      - PORT_RANGE_END=52000
+    depends_on:
+      - menterview.api
+      - menterview.ollama
+    networks:
+      - menterview-network
+
+  menterview.ai-worker:
+    build:
+      context: ./src/back/worker
+      dockerfile: Dockerfile
+    image: menterview/ai-worker:latest
+    profiles:
+      - build-only
+    networks:
+      - menterview-network
+
+  menterview.ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - menterview-network
+
+volumes:
+  postgres_data:
+  ollama_data:
+
+networks:
+  menterview-network:
+    driver: bridge
