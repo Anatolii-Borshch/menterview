@@ -70,12 +70,21 @@ public class UserRepository : IUserRepository
             FirstName = request.FirstName,
             LasName = request.LastName,
             CategoryId = request.CategoryId,
+            DifficultyId = 1,
             RoleId = 2,
             CreatedAt = DateTime.UtcNow
         };
 
-        _businessDb.Users.Add(businessUser);
-        await _businessDb.SaveChangesAsync(ct);
+        try
+        {
+            _businessDb.Users.Add(businessUser);
+            await _businessDb.SaveChangesAsync(ct);
+        }
+        catch
+        {
+            await _userManager.DeleteAsync(identityUser);
+            throw;
+        }
 
         return MapToApplicationUser(identityUser, businessUser);
     }
@@ -97,6 +106,88 @@ public class UserRepository : IUserRepository
             .AsReadOnly();
     }
 
+    public async Task<User?> GetByIdOrDefaultAsync(Guid id, CancellationToken ct = default)
+    {
+        var identityUser = await _userManager.FindByIdAsync(id.ToString());
+        if (identityUser is null) return null;
+        return await AggregateAsync(identityUser, ct);
+    }
+
+    public async Task<IReadOnlyCollection<User>> GetPagedAsync(
+        int page, int pageSize, string? searchTerm, int? roleId, CancellationToken ct = default)
+    {
+        var businessQuery = _businessDb.Users
+            .Include(u => u.Category)
+            .Include(u => u.Role)
+            .Include(u => u.Difficulty)
+            .Include(u => u.Setting)
+            .AsNoTracking();
+
+        if (roleId.HasValue)
+            businessQuery = businessQuery.Where(u => u.RoleId == roleId.Value);
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var lower = searchTerm.ToLower();
+            businessQuery = businessQuery.Where(u =>
+                u.FirstName.ToLower().Contains(lower) ||
+                u.LasName.ToLower().Contains(lower));
+        }
+
+        var businessUsers = await businessQuery
+            .OrderBy(u => u.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct);
+
+        var ids = businessUsers.Select(u => u.UserId.ToString()).ToHashSet();
+        var identityUsers = _userManager.Users
+            .Where(i => ids.Contains(i.Id.ToString()))
+            .ToList();
+        var identityById = identityUsers.ToDictionary(i => i.Id);
+
+        return businessUsers
+            .Where(b => identityById.ContainsKey(b.UserId))
+            .Select(b => MapToApplicationUser(identityById[b.UserId], b))
+            .ToList()
+            .AsReadOnly();
+    }
+
+    public async Task<int> CountAsync(string? searchTerm, int? roleId, CancellationToken ct = default)
+    {
+        var query = _businessDb.Users.AsNoTracking();
+
+        if (roleId.HasValue)
+            query = query.Where(u => u.RoleId == roleId.Value);
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var lower = searchTerm.ToLower();
+            query = query.Where(u =>
+                u.FirstName.ToLower().Contains(lower) ||
+                u.LasName.ToLower().Contains(lower));
+        }
+
+        return await query.CountAsync(ct);
+    }
+
+    public async Task UpdateRoleAsync(Guid userId, int roleId, string roleName, CancellationToken ct = default)
+    {
+        var businessUser = await _businessDb.Users.FindAsync(new object[] { userId }, ct)
+                           ?? throw new KeyNotFoundException($"Business user {userId} not found");
+
+        var identityUser = await _userManager.FindByIdAsync(userId.ToString())
+                           ?? throw new KeyNotFoundException($"Identity user {userId} not found");
+
+        // Replace identity roles
+        var currentRoles = await _userManager.GetRolesAsync(identityUser);
+        await _userManager.RemoveFromRolesAsync(identityUser, currentRoles);
+        await _userManager.AddToRoleAsync(identityUser, roleName);
+
+        businessUser.RoleId = roleId;
+        await _businessDb.SaveChangesAsync(ct);
+    }
+
     public async Task AddAsync(User entity)
     {
         throw new NotSupportedException("Use CreateAsync(CreateUserRequest) instead.");
@@ -110,8 +201,54 @@ public class UserRepository : IUserRepository
         businessUser.FirstName = entity.FirstName;
         businessUser.LasName = entity.LastName;
         businessUser.CategoryId = entity.CategoryId;
+        businessUser.DifficultyId = entity.DifficultyId;
 
         await _businessDb.SaveChangesAsync();
+    }
+
+    public async Task UpdateProfileAsync(Guid userId, string firstName, string lastName, CancellationToken ct = default)
+    {
+        var businessUser = await _businessDb.Users.FindAsync(new object[] { userId }, ct)
+                           ?? throw new KeyNotFoundException($"Business user {userId} not found");
+
+        businessUser.FirstName = firstName;
+        businessUser.LasName = lastName;
+
+        await _businessDb.SaveChangesAsync(ct);
+    }
+
+    public async Task UpdateCategoryAsync(Guid userId, int categoryId, CancellationToken ct = default)
+    {
+        var businessUser = await _businessDb.Users.FindAsync(new object[] { userId }, ct)
+                           ?? throw new KeyNotFoundException($"Business user {userId} not found");
+
+        businessUser.CategoryId = categoryId;
+
+        await _businessDb.SaveChangesAsync(ct);
+    }
+
+    public async Task UpdateDifficultyAsync(Guid userId, int difficultyId, CancellationToken ct = default)
+    {
+        var businessUser = await _businessDb.Users.FindAsync(new object[] { userId }, ct)
+                           ?? throw new KeyNotFoundException($"Business user {userId} not found");
+
+        businessUser.DifficultyId = difficultyId;
+
+        await _businessDb.SaveChangesAsync(ct);
+    }
+
+    public async Task SoftDeleteAsync(Guid userId, CancellationToken ct = default)
+    {
+        var businessUser = await _businessDb.Users.FindAsync(new object[] { userId }, ct)
+                           ?? throw new KeyNotFoundException($"Business user {userId} not found");
+
+        if (businessUser.IsDeleted)
+            return;
+
+        businessUser.IsDeleted = true;
+        businessUser.DeletedAt = DateTime.UtcNow;
+
+        await _businessDb.SaveChangesAsync(ct);
     }
 
     public async Task DeleteAsync(User entity)
@@ -133,6 +270,7 @@ public class UserRepository : IUserRepository
     {
         var businessUser = await _businessDb.Users
             .Include(u => u.Category)
+            .Include(u => u.Difficulty)
             .Include(u => u.Role)
             .Include(u => u.Setting)
             .FirstOrDefaultAsync(u => u.UserId == identityUser.Id, ct);
@@ -150,10 +288,14 @@ public class UserRepository : IUserRepository
             LastName = business.LasName,
             CategoryId = business.CategoryId,
             Category = business.Category,
+            DifficultyId = business.DifficultyId,
+            Difficulty = business.Difficulty,
             RoleId = business.RoleId,
             Role = business.Role,
             Setting = business.Setting,
-            CreatedAt = business.CreatedAt
+            CreatedAt = business.CreatedAt,
+            IsDeleted = business.IsDeleted,
+            DeletedAt = business.IsDeleted ? business.DeletedAt : null
         };
     }
 }

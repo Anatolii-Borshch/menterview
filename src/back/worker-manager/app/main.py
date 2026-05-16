@@ -11,7 +11,7 @@ async def main():
     docker    = DockerManager()
     allocator = PortAllocator()
     registry  = ContainerRegistry()
-    reaper    = Reaper(registry, docker)
+    reaper    = Reaper(registry, docker, allocator)
     servicer  = ManagerServicer(docker, allocator, registry)
 
     print(f"Worker manager starting on port {Config.GRPC_PORT}")

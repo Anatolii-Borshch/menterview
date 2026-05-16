@@ -11,12 +11,13 @@ class DockerManager:
 
     def spawn_worker(
         self,
-        session_id:      int,
-        session_token:   str,
-        questions:       list[dict],
-        grpc_port:       int,
-        ws_port:         int,
-        timeout_seconds: int,
+        session_id:       int,
+        session_token:    str,
+        callback_address: str,
+        questions:        list[dict],
+        grpc_port:        int,
+        ws_port:          int,
+        timeout_seconds:  int,
     ) -> ContainerRecord:
         container = self._client.containers.run(
             image=Config.WORKER_IMAGE,
@@ -26,7 +27,7 @@ class DockerManager:
             environment={
                 "SESSION_ID":       str(session_id),
                 "SESSION_TOKEN":    session_token,
-                "CALLBACK_ADDRESS": Config.CALLBACK_ADDRESS,
+                "CALLBACK_ADDRESS": callback_address,
                 "GRPC_PORT":        "50051",
                 "WS_PORT":          "8765",
                 "SESSION_TIMEOUT":  str(timeout_seconds),

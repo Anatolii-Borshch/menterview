@@ -6,6 +6,7 @@ from app.session.question_list import parse_questions
 from app.llm.client import LlmClient
 from app.llm.rephraser import Rephraser
 from app.llm.scorer import Scorer
+from app.llm.follow_up import FollowUpGenerator
 from app.callback.client import CallbackClient
 from app.callback.retry import RetryCallbackClient
 from app.grpc.server import serve_grpc
@@ -17,8 +18,9 @@ async def main():
     llm       = LlmClient()
     rephraser = Rephraser(llm)
     scorer    = Scorer(llm)
+    follow_up = FollowUpGenerator(llm)
     callback  = RetryCallbackClient(CallbackClient())
-    handler   = SessionHandler(manager, rephraser, scorer, callback)
+    handler   = SessionHandler(manager, rephraser, scorer, follow_up, callback)
 
     questions = manager.load_from_env()
     await manager.initialize(

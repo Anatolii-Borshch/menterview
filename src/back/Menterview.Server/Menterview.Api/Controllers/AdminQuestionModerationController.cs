@@ -1,6 +1,7 @@
 using Menterview.Api.Models.Admin;
 using Menterview.Api.Models.General;
 using Menterview.Api.Models.Question;
+using Menterview.Application.Contracts;
 using Menterview.Application.Dtos.Admin;
 using Menterview.Application.Dtos.Question;
 using Microsoft.AspNetCore.Authorization;
@@ -10,57 +11,83 @@ namespace Menterview.Api.Controllers;
 
 [ApiController]
 [Route("api/admin/questions")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Administrator")]
 public class AdminQuestionModerationController : ControllerBase
 {
-    public AdminQuestionModerationController() { }
+    private readonly IQuestionModerationService _moderationService;
+
+    public AdminQuestionModerationController(IQuestionModerationService moderationService)
+    {
+        _moderationService = moderationService;
+    }
 
     // GET api/admin/questions
-    // All questions including soft deleted, with full filters
     [HttpGet]
     public async Task<ActionResult<ApiResponse<PagedResult<AdminQuestionListItemDto>>>> GetAllQuestions(
-        [FromQuery] GetAdminQuestionsQuery query)
+        [FromQuery] GetAdminQuestionsQuery query, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var result = await _moderationService.GetAllQuestionsAsync(
+            query.Page, query.PageSize, query.SearchTerm,
+            query.CategoryId, query.DifficultyId, query.TagIds,
+            query.IncludeDeleted, ct);
+
+        return Ok(ApiResponse<PagedResult<AdminQuestionListItemDto>>.Success(new PagedResult<AdminQuestionListItemDto>
+        {
+            Items = result.Items,
+            TotalCount = result.TotalCount,
+            Page = result.Page,
+            PageSize = result.PageSize
+        }));
     }
 
     // GET api/admin/questions/pending
     [HttpGet("pending")]
     public async Task<ActionResult<ApiResponse<PagedResult<PendingQuestionDto>>>> GetPendingQuestions(
-        [FromQuery] GetPendingQuestionsQuery query)
+        [FromQuery] GetPendingQuestionsQuery query, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var result = await _moderationService.GetPendingQuestionsAsync(
+            query.Page, query.PageSize, query.Type, ct);
+
+        return Ok(ApiResponse<PagedResult<PendingQuestionDto>>.Success(new PagedResult<PendingQuestionDto>
+        {
+            Items = result.Items,
+            TotalCount = result.TotalCount,
+            Page = result.Page,
+            PageSize = result.PageSize
+        }));
     }
 
     // GET api/admin/questions/pending/{suggestionId:long}
     [HttpGet("pending/{suggestionId:long}")]
     public async Task<ActionResult<ApiResponse<PendingQuestionDetailsDto>>> GetPendingSuggestion(
-        long suggestionId)
+        long suggestionId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var result = await _moderationService.GetPendingSuggestionAsync(suggestionId, ct);
+        return Ok(ApiResponse<PendingQuestionDetailsDto>.Success(result));
     }
 
     // POST api/admin/questions/pending/{suggestionId:long}/approve
     [HttpPost("pending/{suggestionId:long}/approve")]
-    public async Task<ActionResult<ApiResponse>> ApproveSuggestion(long suggestionId)
+    public async Task<ActionResult<ApiResponse>> ApproveSuggestion(long suggestionId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        await _moderationService.ApproveSuggestionAsync(suggestionId, ct);
+        return Ok(ApiResponse.Success());
     }
 
     // POST api/admin/questions/pending/{suggestionId:long}/reject
     [HttpPost("pending/{suggestionId:long}/reject")]
     public async Task<ActionResult<ApiResponse>> RejectSuggestion(
-        long suggestionId,
-        RejectSuggestionRequest request)
+        long suggestionId, [FromBody] RejectSuggestionRequest request, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        await _moderationService.RejectSuggestionAsync(suggestionId, request.RejectionReason, ct);
+        return Ok(ApiResponse.Success());
     }
 
     // DELETE api/admin/questions/{questionId:long}
-    // Admin hard delete — bypasses soft delete stage
     [HttpDelete("{questionId:long}")]
-    public async Task<ActionResult<ApiResponse>> DeleteQuestion(long questionId)
+    public async Task<ActionResult<ApiResponse>> DeleteQuestion(long questionId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        await _moderationService.DeleteQuestionAsync(questionId, ct);
+        return Ok(ApiResponse.Success());
     }
 }

@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, '/app/generated')
+sys.path.insert(0, '/worker-manager/generated')
 
 import asyncio
 import manager_pb2
@@ -22,7 +22,7 @@ class ManagerServicer(manager_pb2_grpc.ManagerServiceServicer):
         self._registry  = registry
 
     async def SpawnWorker(self, request, context):
-        grpc_port, ws_port = await self._allocator.allocate_pair()
+        grpc_port, ws_port = await asyncio.to_thread(self._allocator.allocate_pair)
 
         questions = [
             {
@@ -42,6 +42,7 @@ class ManagerServicer(manager_pb2_grpc.ManagerServiceServicer):
                 self._docker.spawn_worker,
                 session_id=request.session_id,
                 session_token=request.session_token,
+                callback_address=request.callback_address or Config.CALLBACK_ADDRESS,
                 questions=questions,
                 grpc_port=grpc_port,
                 ws_port=ws_port,
@@ -57,7 +58,7 @@ class ManagerServicer(manager_pb2_grpc.ManagerServiceServicer):
             )
 
         except Exception as e:
-            await self._allocator.release_pair(grpc_port, ws_port)
+            await asyncio.to_thread(self._allocator.release_pair, grpc_port, ws_port)
             return manager_pb2.SpawnWorkerResponse(
                 success=False,
                 error_message=str(e),
@@ -73,6 +74,9 @@ class ManagerServicer(manager_pb2_grpc.ManagerServiceServicer):
         )
         await self._registry.update_status(
             request.session_id, WorkerStatus.DEAD
+        )
+        await asyncio.to_thread(
+            self._allocator.release_pair, record.grpc_port, record.ws_port
         )
         return manager_pb2.TerminateWorkerResponse(success=True)
 

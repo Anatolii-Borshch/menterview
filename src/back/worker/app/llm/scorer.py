@@ -4,10 +4,12 @@ from app.llm.client import LlmClient
 SYSTEM_PROMPT = (
     "You are a strict technical interviewer. "
     "Given a question, the correct answer, and the candidate's answer, "
-    "score the candidate's answer from 0 to 100. "
+    "evaluate the candidate's answer along two dimensions, each from 0 to 100: "
+    "correctness (factual accuracy) and completeness (coverage of key points). "
     "Respond ONLY in this exact JSON format with no extra text: "
-    '{\"score\": <int>, \"feedback\": \"<string>\"}'
+    '{"correctness": <int>, "completeness": <int>, "feedback": "<string>"}'
 )
+
 
 class Scorer:
     def __init__(self, client: LlmClient):
@@ -18,7 +20,8 @@ class Scorer:
         question:       str,
         correct_answer: str,
         user_answer:    str,
-    ) -> tuple[int, str]:
+    ) -> tuple[int, int, str]:
+        """Returns (correctness, completeness, feedback)."""
         user_prompt = (
             f"Question: {question}\n"
             f"Correct answer: {correct_answer}\n"
@@ -30,7 +33,10 @@ class Scorer:
         )
         try:
             result = json.loads(raw)
-            return int(result["score"]), str(result["feedback"])
+            return (
+                int(result["correctness"]),
+                int(result["completeness"]),
+                str(result["feedback"]),
+            )
         except (json.JSONDecodeError, KeyError):
-            # Fallback if model returns malformed JSON
-            return 0, raw
+            return 0, 0, raw

@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using Menterview.Api.Models.General;
+using Menterview.Application.Contracts;
 using Menterview.Application.Dtos.WeakPoint;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,31 +12,39 @@ namespace Menterview.Api.Controllers;
 [Authorize]
 public class WeakTopicsController : ControllerBase
 {
-    public WeakTopicsController() { }
+    private readonly IWeakTopicService _weakTopicService;
 
-    // GET api/weak-topics
-    // Returns all weak topics for authenticated user
-    // Covers: "Reviewing weak topics"
+    public WeakTopicsController(IWeakTopicService weakTopicService)
+    {
+        _weakTopicService = weakTopicService;
+    }
+
+    private Guid GetUserId()
+    {
+        var raw = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                  ?? User.FindFirst("sub")?.Value
+                  ?? throw new UnauthorizedAccessException("User ID not found in token.");
+        return Guid.Parse(raw);
+    }
+
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<IEnumerable<WeakTopicDto>>>> GetWeakTopics()
+    public async Task<ActionResult<ApiResponse<IEnumerable<WeakTopicDto>>>> GetWeakTopics(CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var result = await _weakTopicService.GetWeakTopicsAsync(GetUserId(), ct);
+        return Ok(ApiResponse<IEnumerable<WeakTopicDto>>.Success(result));
     }
 
-    // GET api/weak-topics/due
-    // Returns only topics due for review today (NextReviewAt <= now)
-    // Used by session builder to show user what will be included
     [HttpGet("due")]
-    public async Task<ActionResult<ApiResponse<IEnumerable<WeakTopicDto>>>> GetDueWeakTopics()
+    public async Task<ActionResult<ApiResponse<IEnumerable<WeakTopicDto>>>> GetDueWeakTopics(CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var result = await _weakTopicService.GetDueWeakTopicsAsync(GetUserId(), ct);
+        return Ok(ApiResponse<IEnumerable<WeakTopicDto>>.Success(result));
     }
 
-    // DELETE api/weak-topics/{weakTopicId:long}
-    // User manually dismisses a weak topic
     [HttpDelete("{weakTopicId:long}")]
-    public async Task<ActionResult<ApiResponse>> DismissWeakTopic(long weakTopicId)
+    public async Task<ActionResult<ApiResponse>> DismissWeakTopic(long weakTopicId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        await _weakTopicService.DismissWeakTopicAsync(GetUserId(), weakTopicId, ct);
+        return Ok(ApiResponse.Success());
     }
 }

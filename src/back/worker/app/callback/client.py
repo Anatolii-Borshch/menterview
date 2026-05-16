@@ -1,17 +1,22 @@
-import ollama
+import requests
 from app.config import Config
 
-class LlmClient:
-    def __init__(self):
-        self._client = ollama.Client(host=Config.OLLAMA_HOST)
-        self._model  = Config.OLLAMA_MODEL
 
-    def chat(self, system_prompt: str, user_prompt: str) -> str:
-        response = self._client.chat(
-            model=self._model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user",   "content": user_prompt},
-            ]
-        )
+class CallbackClient:
+    """HTTP client that calls the API's FinishSession endpoint."""
+
+    def finish(self, session_token: str, payload: dict) -> bool:
+        url = f"http://{Config.CALLBACK_ADDRESS}/api/sessions/finish"
+        headers = {
+            "Authorization": f"Bearer {session_token}",
+            "Content-Type": "application/json",
+        }
+        try:
+            resp = requests.post(url, json=payload, headers=headers, timeout=30)
+            if not resp.ok:
+                print(f"Callback failed: HTTP {resp.status_code} — {resp.text}")
+            return resp.ok
+        except requests.RequestException as exc:
+            print(f"Callback error: {exc}")
+            return False
         return response["message"]["content"].strip()

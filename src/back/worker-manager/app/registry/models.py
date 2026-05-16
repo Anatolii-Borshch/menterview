@@ -13,6 +13,8 @@ class ContainerRecord:
     container_id: str
     grpc_host:    str
     ws_host:      str
+    grpc_port:    int
+    ws_port:      int
     status:       WorkerStatus
     spawned_at:   datetime
     timeout_at:   datetime

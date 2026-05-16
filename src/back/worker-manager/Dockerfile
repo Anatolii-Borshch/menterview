@@ -10,3 +10,4 @@ COPY . .
 ENV PYTHONPATH="/worker-manager:/worker-manager/generated"
 EXPOSE 6000
 CMD ["python", "-m", "app.main"]
+CMD ["python", "-m", "app.main"]

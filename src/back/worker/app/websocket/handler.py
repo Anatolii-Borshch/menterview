@@ -6,20 +6,24 @@ from app.session.manager import SessionManager, AnswerRecord
 from app.session.question_list import SessionQuestion
 from app.llm.rephraser import Rephraser
 from app.llm.scorer import Scorer
-from app.callback.client import CallbackClient
+from app.llm.follow_up import FollowUpGenerator
+from app.callback.retry import RetryCallbackClient
 from app.session.result_builder import build_finish_payload
+
 
 class SessionHandler:
     def __init__(
         self,
-        manager:  SessionManager,
-        rephraser: Rephraser,
-        scorer:    Scorer,
-        callback:  CallbackClient,
+        manager:         SessionManager,
+        rephraser:       Rephraser,
+        scorer:          Scorer,
+        follow_up:       FollowUpGenerator,
+        callback:        RetryCallbackClient,
     ):
         self._manager   = manager
         self._rephraser = rephraser
         self._scorer    = scorer
+        self._follow_up = follow_up
         self._callback  = callback
 
     async def handle(self, websocket):
@@ -49,10 +53,10 @@ class SessionHandler:
             )
 
             await websocket.send(json.dumps({
-                "event":          "question",
-                "question_id":    question.question_id,
-                "question_text":  display_text,
-                "is_weak_topic":  question.is_weak_topic,
+                "event":         "question",
+                "question_id":   question.question_id,
+                "question_text": display_text,
+                "is_weak_topic": question.is_weak_topic,
             }))
 
             start_time = time.time()
@@ -66,18 +70,21 @@ class SessionHandler:
                 user_answer    = msg.get("answer", "")
                 answering_time = int(time.time() - start_time)
 
-                accuracy, ai_reply = await asyncio.to_thread(
+                correctness, completeness, ai_reply = await asyncio.to_thread(
                     self._scorer.score,
                     display_text,
                     question.answer,
                     user_answer,
                 )
+                accuracy = int(0.6 * correctness + 0.4 * completeness)
 
                 await self._manager.record_answer(AnswerRecord(
                     question_id=question.question_id,
                     answer_text=user_answer,
                     ai_reply=ai_reply,
                     accuracy=accuracy,
+                    correctness=correctness,
+                    completeness=completeness,
                     answering_time=answering_time,
                     was_rephrased=bool(
                         question.is_weak_topic and question.rephrased_text
@@ -85,10 +92,25 @@ class SessionHandler:
                     was_weak_topic=question.is_weak_topic,
                 ))
 
+                # Generate follow-up if answer was weak (capped at 1 per question)
+                if self._follow_up.should_generate(correctness, completeness):
+                    follow_up_q = await asyncio.to_thread(
+                        self._follow_up.generate,
+                        display_text,
+                        question.answer,
+                        user_answer,
+                        question.category_id,
+                        question.difficulty_id,
+                    )
+                    if follow_up_q:
+                        await self._manager.record_ai_question(follow_up_q)
+
                 await websocket.send(json.dumps({
-                    "event":    "answer_feedback",
-                    "accuracy": accuracy,
-                    "ai_reply": ai_reply,
+                    "event":        "answer_feedback",
+                    "accuracy":     accuracy,
+                    "correctness":  correctness,
+                    "completeness": completeness,
+                    "ai_reply":     ai_reply,
                 }))
 
             except asyncio.TimeoutError:
@@ -102,4 +124,4 @@ class SessionHandler:
 
         state = await self._manager.get_state()
         payload = build_finish_payload(state)
-        await asyncio.to_thread(self._callback.finish, payload)
+        await asyncio.to_thread(self._callback.finish, state.session_token, payload)

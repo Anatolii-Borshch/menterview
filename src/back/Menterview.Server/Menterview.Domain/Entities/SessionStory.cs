@@ -1,4 +1,6 @@
-﻿namespace Menterview.Domain.Entities
+﻿using Menterview.Domain.Enums;
+
+namespace Menterview.Domain.Entities
 {
     public class SessionStory
     {
@@ -9,6 +11,10 @@
         public int QuestionsAmount { get; set; }
 
         public DateTime Time { get; set; }
+        public DateTime? CompletedAt { get; set; }
+
+        public SessionStatus Status { get; set; } = SessionStatus.Pending;
+        public float Score { get; set; }
 
         public Guid UserId { get; set; }
         public BusinessUser BusinessUser { get; set; } = null!;
@@ -20,5 +26,6 @@
         public Difficulty? Difficulty { get; set; }
 
         public ICollection<Answer> Answers { get; set; } = new List<Answer>();
+        public ICollection<SessionFollowUpQuestion> FollowUpQuestions { get; set; } = new List<SessionFollowUpQuestion>();
     }
 }

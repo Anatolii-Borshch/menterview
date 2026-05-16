@@ -63,4 +63,12 @@ public class AuthController : ControllerBase
         await _authService.LogoutAsync(request, ct);
         return Ok(ApiResponse.Success());
     }
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<ApiResponse<AuthResponse>>> RefreshAsync(
+        [FromBody] RefreshTokenRequest request, CancellationToken ct)
+    {
+        var result = await _authService.RefreshAsync(request, ct);
+        return Ok(ApiResponse<AuthResponse>.Success(result));
+    }
 }

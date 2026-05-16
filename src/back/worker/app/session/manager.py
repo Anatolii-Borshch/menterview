@@ -11,6 +11,8 @@ class AnswerRecord:
     answer_text:    str
     ai_reply:       str
     accuracy:       int
+    correctness:    int
+    completeness:   int
     answering_time: int
     was_rephrased:  bool
     was_weak_topic: bool
@@ -21,6 +23,7 @@ class SessionState:
     session_token: str
     questions:     list[SessionQuestion]
     answers:       list[AnswerRecord] = field(default_factory=list)
+    ai_questions:  list[dict]         = field(default_factory=list)
     started_at:    float              = field(default_factory=time.time)
     is_finished:   bool               = False
 
@@ -50,6 +53,11 @@ class SessionManager:
         async with self._lock:
             if self._state:
                 self._state.answers.append(record)
+
+    async def record_ai_question(self, question: dict):
+        async with self._lock:
+            if self._state:
+                self._state.ai_questions.append(question)
 
     async def mark_finished(self):
         async with self._lock:

@@ -1,6 +1,6 @@
 using Menterview.Application.Dtos.Sub;
 
-namespace Menterview.Api.Models.User;
+namespace Menterview.Application.Dtos.Admin;
 
 public class AdminUserListItemDto
 {
