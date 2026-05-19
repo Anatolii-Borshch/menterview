@@ -40,6 +40,15 @@ public class ProfileValidator : IProfileValidator
             throw new KeyNotFoundException($"Difficulty {difficultyId} not found.");
     }
 
+    public async Task ValidateLevelAsync(int levelId, CancellationToken ct = default)
+    {
+        if (levelId <= 0)
+            throw new ArgumentException("Level id must be a positive integer.", nameof(levelId));
+
+        if (!await _referenceRepo.LevelExistsAsync(levelId, ct))
+            throw new KeyNotFoundException($"Level {levelId} not found.");
+    }
+
     private static void ValidateName(string value, string field)
     {
         if (string.IsNullOrWhiteSpace(value))

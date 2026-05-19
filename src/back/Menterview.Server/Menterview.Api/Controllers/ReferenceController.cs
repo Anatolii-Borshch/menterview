@@ -38,4 +38,11 @@ public class ReferenceController : ControllerBase
         var result = await _referenceService.GetTagsAsync(ct);
         return Ok(ApiResponse<IEnumerable<TagDto>>.Success(result));
     }
+
+    [HttpGet("levels")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<LevelDto>>>> GetLevels(CancellationToken ct)
+    {
+        var result = await _referenceService.GetLevelsAsync(ct);
+        return Ok(ApiResponse<IEnumerable<LevelDto>>.Success(result));
+    }
 }

@@ -20,11 +20,17 @@ public class ReferenceRepository : IReferenceRepository
     public Task<bool> DifficultyExistsAsync(int difficultyId, CancellationToken ct = default)
         => _businessDb.Difficulties.AnyAsync(d => d.DifficultyId == difficultyId, ct);
 
+    public Task<bool> LevelExistsAsync(int levelId, CancellationToken ct = default)
+        => _businessDb.Levels.AnyAsync(l => l.LevelId == levelId, ct);
+
     public async Task<IEnumerable<Category>> GetCategoriesAsync(CancellationToken ct = default)
         => await _businessDb.Categories.AsNoTracking().ToListAsync(ct);
 
     public async Task<IEnumerable<Difficulty>> GetDifficultiesAsync(CancellationToken ct = default)
         => await _businessDb.Difficulties.AsNoTracking().ToListAsync(ct);
+
+    public async Task<IEnumerable<Level>> GetLevelsAsync(CancellationToken ct = default)
+        => await _businessDb.Levels.AsNoTracking().ToListAsync(ct);
 
     public async Task<IEnumerable<Tag>> GetTagsAsync(CancellationToken ct = default)
         => await _businessDb.Tags.AsNoTracking().ToListAsync(ct);

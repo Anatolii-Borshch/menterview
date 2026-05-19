@@ -13,11 +13,16 @@
 
         public int DifficultyId { get; set; }
         public Difficulty Difficulty { get; set; } = null!;
-        
+
+        public int? LevelId { get; set; }
+        public Level? Level { get; set; }
+
         public int RoleId { get; set; }
         public Role Role { get; set; } = null!;
 
         public Setting Setting { get; set; } = null!;
+
+        public ICollection<UserSkill> Skills { get; set; } = new List<UserSkill>();
 
         public bool IsDeleted { get; set; }
 

@@ -16,6 +16,8 @@ namespace Menterview.Persistence.DbContext
         public DbSet<NewQuestionTag> NewQuestionTags { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuestionTag> QuestionTags { get; set; }
+        public DbSet<Level> Levels { get; set; }
+        public DbSet<UserSkill> UserSkills { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<BusinessUser> Users { get; set; }
         public DbSet<SessionStory> SessionStories { get; set; }
@@ -38,6 +40,12 @@ namespace Menterview.Persistence.DbContext
             builder.Entity<Category>().HasData(
                 new Category { CategoryId = 1, CategoryName = "Java" },
                 new Category { CategoryId = 2, CategoryName = ".NET" }
+            );
+
+            builder.Entity<Level>().HasData(
+                new Level { LevelId = 1, LevelName = "Junior" },
+                new Level { LevelId = 2, LevelName = "Mid" },
+                new Level { LevelId = 3, LevelName = "Senior" }
             );
 
             builder.Entity<Difficulty>().HasData(

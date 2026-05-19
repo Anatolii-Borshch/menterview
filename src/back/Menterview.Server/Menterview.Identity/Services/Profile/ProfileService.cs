@@ -59,6 +59,20 @@ public class ProfileService : IProfileService
         _logger.LogInformation("User {UserId} updated difficulty to {DifficultyId}.", userId, difficultyId);
     }
 
+    public async Task UpdateLevelAsync(Guid userId, int levelId, CancellationToken ct = default)
+    {
+        await _validator.ValidateLevelAsync(levelId, ct);
+
+        await _userRepo.UpdateLevelAsync(userId, levelId, ct);
+        _logger.LogInformation("User {UserId} updated level to {LevelId}.", userId, levelId);
+    }
+
+    public async Task UpdateSkillTagsAsync(Guid userId, IReadOnlyList<int> tagIds, CancellationToken ct = default)
+    {
+        await _userRepo.UpdateSkillTagsAsync(userId, tagIds, ct);
+        _logger.LogInformation("User {UserId} updated skill tags.", userId);
+    }
+
     private static UserProfileDto MapToDto(ApplicationUser user)
     {
         var dto = new UserProfileDto
@@ -78,6 +92,16 @@ public class ProfileService : IProfileService
                 DifficultyId = user.Difficulty.DifficultyId,
                 DifficultyName = user.Difficulty.DifficultyName
             },
+            Level = user.Level is null ? null : new LevelDto
+            {
+                LevelId = user.Level.LevelId,
+                LevelName = user.Level.LevelName
+            },
+            SkillTags = user.SkillTags.Select(t => new TagDto
+            {
+                TagId = t.TagId,
+                TagName = t.TagName
+            }).ToList(),
             Role = new RoleDto
             {
                 RoleId = user.Role.RoleId,

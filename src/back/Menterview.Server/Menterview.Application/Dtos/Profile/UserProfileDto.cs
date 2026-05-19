@@ -11,6 +11,8 @@ public class UserProfileDto
     public DateTime CreatedAt { get; set; }
     public CategoryDto Category { get; set; } = null!;
     public DifficultyDto Difficulty { get; set; } = null!;
+    public LevelDto? Level { get; set; }
+    public IReadOnlyList<TagDto> SkillTags { get; set; } = [];
     public RoleDto Role { get; set; } = null!;
     public UserSettingsDto? Settings { get; set; }
 }

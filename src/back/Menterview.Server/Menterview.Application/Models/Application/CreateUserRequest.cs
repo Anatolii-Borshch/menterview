@@ -6,6 +6,8 @@ public record CreateUserRequest(
     string FirstName,
     string LastName,
     int CategoryId,
+    int? LevelId = null,
+    IReadOnlyList<int>? TagIds = null,
     string? ExternalProvider = null,
     string? ExternalId = null
 );

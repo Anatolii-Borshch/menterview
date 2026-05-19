@@ -6,5 +6,6 @@ public interface IReferenceService
 {
     Task<IEnumerable<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default);
     Task<IEnumerable<DifficultyDto>> GetDifficultiesAsync(CancellationToken ct = default);
+    Task<IEnumerable<LevelDto>> GetLevelsAsync(CancellationToken ct = default);
     Task<IEnumerable<TagDto>> GetTagsAsync(CancellationToken ct = default);
 }

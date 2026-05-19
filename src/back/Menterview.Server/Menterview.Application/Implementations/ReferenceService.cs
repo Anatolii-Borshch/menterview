@@ -42,4 +42,14 @@ public class ReferenceService : IReferenceService
             TagName = t.TagName
         });
     }
+
+    public async Task<IEnumerable<LevelDto>> GetLevelsAsync(CancellationToken ct = default)
+    {
+        var levels = await _referenceRepo.GetLevelsAsync(ct);
+        return levels.Select(l => new LevelDto
+        {
+            LevelId = l.LevelId,
+            LevelName = l.LevelName
+        });
+    }
 }

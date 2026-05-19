@@ -92,13 +92,13 @@ public class AuthService : IAuthService
             return await IssueTokensAsync(existing, ct);
 
         var user = await _userRepo.CreateAsync(new CreateUserRequest(
-            googleUser.Email,
-            null,
-            googleUser.FirstName ?? "User",
-            googleUser.LastName ?? "",
-            defaultCategoryId,
-            "Google",
-            googleUser.Sub
+            Email: googleUser.Email,
+            Password: null,
+            FirstName: googleUser.FirstName ?? "User",
+            LastName: googleUser.LastName ?? "",
+            CategoryId: defaultCategoryId,
+            ExternalProvider: "Google",
+            ExternalId: googleUser.Sub
         ), ct);
 
         return await IssueTokensAsync(user, ct);
@@ -125,7 +125,9 @@ public class AuthService : IAuthService
             pending.Request.Password,
             pending.Request.FirstName,
             pending.Request.LastName,
-            pending.Request.CategoryId
+            pending.Request.CategoryId,
+            pending.Request.LevelId,
+            pending.Request.TagIds
         ), ct);
         
         var identityUser = await _userManager.FindByEmailAsync(request.Email)
@@ -142,6 +144,32 @@ public class AuthService : IAuthService
 
         token.RevokedAt = DateTime.UtcNow;
         await _refreshTokenRepo.SaveAsync(token, ct);
+    }
+
+    public async Task ForgotPasswordAsync(ForgotPasswordRequest request, CancellationToken ct = default)
+    {
+        var identityUser = await _userManager.FindByEmailAsync(request.Email);
+        if (identityUser is null) return;
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(identityUser);
+
+        await _emailService.SendEmailAsync(new EmailMessage
+        {
+            To = request.Email,
+            Subject = "Reset your Menterview password",
+            Body = BuildPasswordResetEmail(token),
+            IsBodyHtml = true
+        });
+    }
+
+    public async Task ResetPasswordAsync(ResetPasswordRequest request, CancellationToken ct = default)
+    {
+        var identityUser = await _userManager.FindByEmailAsync(request.Email)
+                           ?? throw new InvalidOperationException("Invalid reset request.");
+
+        var result = await _userManager.ResetPasswordAsync(identityUser, request.Token, request.NewPassword);
+        if (!result.Succeeded)
+            throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
     }
 
     public async Task<AuthResponse> RefreshAsync(RefreshTokenRequest request, CancellationToken ct = default)
@@ -199,6 +227,16 @@ public class AuthService : IAuthService
                 <p>Your verification code is:</p>
                 <h1 style="letter-spacing: 8px; font-size: 48px; color: #4F46E5;">{code}</h1>
                 <p>This code expires in <strong>10 minutes</strong>.</p>
+                """;
+    }
+
+    private static string BuildPasswordResetEmail(string token)
+    {
+        return $"""
+                <h2>Reset your Menterview password</h2>
+                <p>Use the token below to reset your password. It expires in <strong>1 hour</strong>.</p>
+                <pre style="background:#f4f4f4;padding:12px;font-size:14px;">{token}</pre>
+                <p>If you did not request a password reset, you can ignore this email.</p>
                 """;
     }
     
