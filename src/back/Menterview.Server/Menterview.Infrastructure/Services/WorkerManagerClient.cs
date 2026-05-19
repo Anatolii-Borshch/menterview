@@ -1,6 +1,7 @@
 using Grpc.Net.Client;
 using Manager;
 using Menterview.Application.Contracts;
+using Menterview.Application.Contracts.Client;
 using Menterview.Application.Dtos.Session;
 
 namespace Menterview.Infrastructure.Services;

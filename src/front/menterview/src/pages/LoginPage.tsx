@@ -1,27 +1,35 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import agent from '../api/agent';
+import { useAuthStore } from '../api/useAuthStore';
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { setAuth } = useAuthStore();
+  const successMessage = (location.state as { message?: string } | null)?.message;
   const [form, setForm] = useState({ email: '', password: '' });
-  const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (successMessage) toast.success(successMessage);
+  }, [successMessage]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setErrors([]);
     try {
       const res = await agent.auth.login(form);
       if (res.data.isSuccess) {
-        navigate('/');
+        setAuth(res.data.data);
+        navigate('/dashboard');
       } else {
-        setErrors(res.data.errors);
+        res.data.errors.forEach((e: string) => toast.error(e));
       }
     } catch {
-      setErrors(['Something went wrong. Please try again.']);
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -52,14 +60,6 @@ export const LoginPage = () => {
             </div>
           </div>
 
-          {errors.length > 0 && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
-              {errors.map((e, i) => (
-                <p key={i} className="text-red-600 text-xs">{e}</p>
-              ))}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="text-xs font-medium text-navy/60 block mb-1">Email</label>
@@ -73,7 +73,10 @@ export const LoginPage = () => {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-navy/60 block mb-1">Password</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-medium text-navy/60">Password</label>
+                <Link to="/forgot-password" className="text-xs text-cornflower hover:underline">Forgot password?</Link>
+              </div>
               <input
                 type="password"
                 value={form.password}

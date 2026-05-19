@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Menterview.Api.Models.General;
 using Menterview.Application.Contracts;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.WeakPoint;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

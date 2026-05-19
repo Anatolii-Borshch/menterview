@@ -10,5 +10,4 @@ public interface IProfileService
     Task UpdateCategoryAsync(Guid userId, int categoryId, CancellationToken ct = default);
     Task UpdateDifficultyAsync(Guid userId, int difficultyId, CancellationToken ct = default);
     Task UpdateLevelAsync(Guid userId, int levelId, CancellationToken ct = default);
-    Task UpdateSkillTagsAsync(Guid userId, IReadOnlyList<int> tagIds, CancellationToken ct = default);
 }

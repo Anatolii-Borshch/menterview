@@ -8,4 +8,5 @@ public class GetQuestionsQuery
     public int? DifficultyId { get; set; }
     public IEnumerable<int> TagIds { get; set; } = [];
     public string? SearchTerm { get; set; }
+    public string? Search { get; set; }
 }

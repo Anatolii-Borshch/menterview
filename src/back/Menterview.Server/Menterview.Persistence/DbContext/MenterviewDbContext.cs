@@ -17,7 +17,6 @@ namespace Menterview.Persistence.DbContext
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuestionTag> QuestionTags { get; set; }
         public DbSet<Level> Levels { get; set; }
-        public DbSet<UserSkill> UserSkills { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<BusinessUser> Users { get; set; }
         public DbSet<SessionStory> SessionStories { get; set; }

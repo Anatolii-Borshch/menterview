@@ -3,10 +3,12 @@ import type {
   ApiResponse,
   ApiResponseData,
   AuthResponse,
+  ForgotPasswordRequest,
   GoogleLoginRequest,
   LoginRequest,
   LogoutRequest,
   RegisterRequest,
+  ResetPasswordRequest,
   VerifyEmailRequest,
 } from "./models/authModels";
 import { useAuthStore } from "./useAuthStore";
@@ -66,6 +68,12 @@ const authAgent = {
     }
     return response;
   },
+
+  forgotPassword: (data: ForgotPasswordRequest) =>
+    axiosInstance.post<ApiResponse>("/api/auth/password/forgot", data),
+
+  resetPassword: (data: ResetPasswordRequest) =>
+    axiosInstance.post<ApiResponse>("/api/auth/password/reset", data),
 };
 
 const agent = {

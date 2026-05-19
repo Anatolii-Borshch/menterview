@@ -1,4 +1,5 @@
 using Menterview.Application.Contracts;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos;
 using Menterview.Application.Dtos.Admin;
 using Menterview.Application.Dtos.Question;
@@ -199,5 +200,26 @@ public class QuestionModerationService : IQuestionModerationService
         question.IsDeleted = true;
         question.DeletedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task<long> SuggestQuestionAsync(Guid userId, string questionText, string answer,
+        int categoryId, int difficultyId, IEnumerable<int> tagIds, CancellationToken ct = default)
+    {
+        var suggestion = new NewQuestion
+        {
+            Question = questionText,
+            Answer = answer,
+            CategoryId = categoryId,
+            DifficultyId = difficultyId,
+            UserId = userId,
+            Status = SuggestionStatus.Pending,
+            Type = SuggestionType.New,
+            CreatedAt = DateTime.UtcNow,
+            Tags = tagIds.Select(tid => new NewQuestionTag { TagId = tid }).ToList()
+        };
+
+        _db.NewQuestions.Add(suggestion);
+        await _db.SaveChangesAsync(ct);
+        return suggestion.SuggestionId;
     }
 }

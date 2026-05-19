@@ -1,5 +1,19 @@
 ﻿version: '3.8'
 services:
+  menterview.frontend:
+    build:
+      context: ./src/front/menterview
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8080
+        VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    ports:
+      - "5173:80"
+    depends_on:
+      - menterview.api
+    networks:
+      - menterview-network
+
   menterview.api:
     image: menterview.api
     build:
@@ -13,16 +27,22 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=menterview.db;Port=5432;Database=mentordb;Username=postgres;Password=postgres
+      - Frontend__BaseUrl=http://localhost:5173
       - WorkerManager__Address=http://menterview.worker-manager:6000
       - Grpc__CallbackAddress=menterview.api:8080
       - JwtSettings__SecretKey=${JWT_SECRET_KEY}
       - JwtSettings__Issuer=menterview-api
       - JwtSettings__Audience=menterview-client
-      - JwtSettings__AccessTokenExpirationMinutes=60
+      - JwtSettings__ExpiryMinutes=60
+      - AdminSeed__Email=${ADMIN_EMAIL}
+      - AdminSeed__Password=${ADMIN_PASSWORD}
+      - AdminSeed__FirstName=${ADMIN_FIRST_NAME:-Admin}
+      - AdminSeed__LastName=${ADMIN_LAST_NAME:-User}
       - Cors__AllowedOrigins__0=http://localhost:5173
       - Google__ClientId=${GOOGLE_CLIENT_ID}
       - EmailSettings__SmtpServer=smtp.gmail.com
       - EmailSettings__Port=587
+      - EmailSettings__TimeoutSeconds=15
       - EmailSettings__SenderEmail=${EMAIL_SENDER}
       - EmailSettings__SenderPassword=${EMAIL_PASSWORD}
       - EmailSettings__SenderName=Menterview

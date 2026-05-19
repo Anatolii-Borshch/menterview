@@ -1,7 +1,7 @@
 using Menterview.Application.Dtos.Stats;
 using Menterview.Domain.Enums;
 
-namespace Menterview.Application.Contracts;
+namespace Menterview.Application.Contracts.Service;
 
 public interface IAdminStatsService
 {

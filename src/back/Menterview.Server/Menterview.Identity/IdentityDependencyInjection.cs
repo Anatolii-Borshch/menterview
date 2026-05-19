@@ -28,7 +28,7 @@ public static class IdentityDependencyInjection
             options.UseNpgsql(connectionString);
         });
 
-        services.AddIdentity<AppIdentityUser, IdentityRole<Guid>>(options =>
+        services.AddIdentityCore<AppIdentityUser>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 8;
@@ -39,6 +39,7 @@ public static class IdentityDependencyInjection
                 options.SignIn.RequireConfirmedPhoneNumber = false;
                 options.Lockout.AllowedForNewUsers = true;
             })
+            .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<MenterviewIdentityDbContext>()
             .AddDefaultTokenProviders();
 

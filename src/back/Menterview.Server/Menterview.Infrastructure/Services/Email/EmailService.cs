@@ -21,7 +21,8 @@ public class EmailService : IEmailService
         {
             Credentials = new NetworkCredential(_settings.SenderEmail, _settings.SenderPassword),
             EnableSsl = true,
-            DeliveryMethod = SmtpDeliveryMethod.Network
+            DeliveryMethod = SmtpDeliveryMethod.Network,
+            Timeout = Math.Max(_settings.TimeoutSeconds, 1) * 1000
         };
 
         using var message = new MailMessage
@@ -34,6 +35,17 @@ public class EmailService : IEmailService
 
         message.To.Add(email.To);
 
-        await client.SendMailAsync(message);
+        try
+        {
+            await client.SendMailAsync(message).WaitAsync(TimeSpan.FromSeconds(Math.Max(_settings.TimeoutSeconds, 1)));
+        }
+        catch (TimeoutException ex)
+        {
+            throw new InvalidOperationException("Email sending timed out.", ex);
+        }
+        catch (SmtpException ex)
+        {
+            throw new InvalidOperationException($"Failed to send email: {ex.Message}", ex);
+        }
     }
 }

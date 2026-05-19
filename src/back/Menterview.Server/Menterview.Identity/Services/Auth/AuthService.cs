@@ -1,4 +1,5 @@
-﻿using Menterview.Application.Contracts.Auth;
+﻿using System.Text;
+using Menterview.Application.Contracts.Auth;
 using Menterview.Application.Contracts.Email;
 using Menterview.Application.Contracts.Repository;
 using Menterview.Application.Contracts.Security;
@@ -9,6 +10,7 @@ using Menterview.Application.Models.Email;
 using Menterview.Application.Models.Security;
 using Menterview.Identity.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace Menterview.Identity.Services.Auth;
 
@@ -20,6 +22,7 @@ public class AuthService : IAuthService
     private readonly IEmailService _emailService;
     private readonly IJwtTokenService _jwtService;
     private readonly IRefreshTokenRepository _refreshTokenRepo;
+    private readonly FrontendSettings _frontendSettings;
     private readonly UserManager<AppIdentityUser> _userManager;
     private readonly IUserRepository _userRepo;
 
@@ -28,13 +31,15 @@ public class AuthService : IAuthService
         IRefreshTokenRepository refreshTokenRepo,
         IJwtTokenService jwtService,
         IEmailService emailService,
-        UserManager<AppIdentityUser> userManager)
+        UserManager<AppIdentityUser> userManager,
+        IOptions<FrontendSettings> frontendSettings)
     {
         _userRepo = userRepo;
         _refreshTokenRepo = refreshTokenRepo;
         _jwtService = jwtService;
         _emailService = emailService;
         _userManager = userManager;
+        _frontendSettings = frontendSettings.Value;
     }
 
     public async Task RegisterAsync(RegisterRequest request, CancellationToken ct = default)
@@ -126,8 +131,7 @@ public class AuthService : IAuthService
             pending.Request.FirstName,
             pending.Request.LastName,
             pending.Request.CategoryId,
-            pending.Request.LevelId,
-            pending.Request.TagIds
+            pending.Request.LevelId
         ), ct);
         
         var identityUser = await _userManager.FindByEmailAsync(request.Email)
@@ -152,13 +156,14 @@ public class AuthService : IAuthService
         if (identityUser is null) return;
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(identityUser);
+        var resetLink = BuildPasswordResetLink(request.Email, EncodeResetToken(token));
 
         await _emailService.SendEmailAsync(new EmailMessage
         {
             To = request.Email,
             Subject = "Reset your Menterview password",
-            Body = BuildPasswordResetEmail(token),
-            IsBodyHtml = true
+            Body = BuildPasswordResetEmail(resetLink),
+            IsBodyHtml = false
         });
     }
 
@@ -167,7 +172,7 @@ public class AuthService : IAuthService
         var identityUser = await _userManager.FindByEmailAsync(request.Email)
                            ?? throw new InvalidOperationException("Invalid reset request.");
 
-        var result = await _userManager.ResetPasswordAsync(identityUser, request.Token, request.NewPassword);
+        var result = await _userManager.ResetPasswordAsync(identityUser, DecodeResetToken(request.Token), request.NewPassword);
         if (!result.Succeeded)
             throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
     }
@@ -230,14 +235,65 @@ public class AuthService : IAuthService
                 """;
     }
 
-    private static string BuildPasswordResetEmail(string token)
+    private string BuildPasswordResetLink(string email, string token)
+    {
+        var baseUrl = string.IsNullOrWhiteSpace(_frontendSettings.BaseUrl)
+            ? "http://localhost:5173"
+            : _frontendSettings.BaseUrl.TrimEnd('/');
+
+        var encodedEmail = Uri.EscapeDataString(email);
+        var encodedToken = Uri.EscapeDataString(token);
+
+        return $"{baseUrl}/reset-password?email={encodedEmail}&token={encodedToken}";
+    }
+
+    private static string BuildPasswordResetEmail(string resetLink)
     {
         return $"""
-                <h2>Reset your Menterview password</h2>
-                <p>Use the token below to reset your password. It expires in <strong>1 hour</strong>.</p>
-                <pre style="background:#f4f4f4;padding:12px;font-size:14px;">{token}</pre>
-                <p>If you did not request a password reset, you can ignore this email.</p>
+                Reset your Menterview password
+
+                Open this link to reset your password. It expires in 1 hour.
+
+                {resetLink}
+
+                If you did not request a password reset, you can ignore this email.
                 """;
+    }
+
+    private static string EncodeResetToken(string token)
+    {
+        var bytes = Encoding.UTF8.GetBytes(token);
+        return Convert.ToBase64String(bytes)
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+    }
+
+    private static string DecodeResetToken(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return token;
+
+        try
+        {
+            var normalized = token
+                .Replace('-', '+')
+                .Replace('_', '/');
+
+            normalized = (normalized.Length % 4) switch
+            {
+                2 => normalized + "==",
+                3 => normalized + "=",
+                _ => normalized
+            };
+
+            var bytes = Convert.FromBase64String(normalized);
+            return Encoding.UTF8.GetString(bytes);
+        }
+        catch (FormatException)
+        {
+            return token;
+        }
     }
     
     private static void ValidatePassword(string password)

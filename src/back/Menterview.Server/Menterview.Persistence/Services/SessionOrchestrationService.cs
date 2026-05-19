@@ -1,6 +1,8 @@
 using Menterview.Application.Contracts;
+using Menterview.Application.Contracts.Client;
 using Menterview.Application.Contracts.Repository;
 using Menterview.Application.Contracts.Security;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.Session;
 using Menterview.Domain.Entities;
 using Menterview.Domain.Enums;

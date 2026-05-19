@@ -80,17 +80,6 @@ public class UserRepository : IUserRepository
         {
             _businessDb.Users.Add(businessUser);
             await _businessDb.SaveChangesAsync(ct);
-
-            if (request.TagIds is { Count: > 0 })
-            {
-                var skills = request.TagIds.Select(tagId => new UserSkill
-                {
-                    UserId = businessUser.UserId,
-                    TagId = tagId
-                });
-                _businessDb.UserSkills.AddRange(skills);
-                await _businessDb.SaveChangesAsync(ct);
-            }
         }
         catch
         {
@@ -259,20 +248,6 @@ public class UserRepository : IUserRepository
         await _businessDb.SaveChangesAsync(ct);
     }
 
-    public async Task UpdateSkillTagsAsync(Guid userId, IReadOnlyList<int> tagIds, CancellationToken ct = default)
-    {
-        var existing = await _businessDb.UserSkills
-            .Where(s => s.UserId == userId)
-            .ToListAsync(ct);
-
-        _businessDb.UserSkills.RemoveRange(existing);
-
-        if (tagIds.Count > 0)
-            _businessDb.UserSkills.AddRange(tagIds.Select(tid => new UserSkill { UserId = userId, TagId = tid }));
-
-        await _businessDb.SaveChangesAsync(ct);
-    }
-
     public async Task SoftDeleteAsync(Guid userId, CancellationToken ct = default)
     {
         var businessUser = await _businessDb.Users.FindAsync(new object[] { userId }, ct)
@@ -310,7 +285,6 @@ public class UserRepository : IUserRepository
             .Include(u => u.Level)
             .Include(u => u.Role)
             .Include(u => u.Setting)
-            .Include(u => u.Skills).ThenInclude(s => s.Tag)
             .FirstOrDefaultAsync(u => u.UserId == identityUser.Id, ct);
 
         return businessUser is null ? null : MapToApplicationUser(identityUser, businessUser);
@@ -332,7 +306,6 @@ public class UserRepository : IUserRepository
             Level = business.Level,
             RoleId = business.RoleId,
             Role = business.Role,
-            SkillTags = business.Skills.Select(s => s.Tag).ToList(),
             Setting = business.Setting,
             CreatedAt = business.CreatedAt,
             IsDeleted = business.IsDeleted,

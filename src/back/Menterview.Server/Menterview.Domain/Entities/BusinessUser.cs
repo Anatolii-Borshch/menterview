@@ -22,8 +22,6 @@
 
         public Setting Setting { get; set; } = null!;
 
-        public ICollection<UserSkill> Skills { get; set; } = new List<UserSkill>();
-
         public bool IsDeleted { get; set; }
 
         public DateTime DeletedAt { get; set;}

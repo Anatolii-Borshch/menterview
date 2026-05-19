@@ -1,6 +1,6 @@
 using Menterview.Application.Dtos.Session;
 
-namespace Menterview.Application.Contracts;
+namespace Menterview.Application.Contracts.Service;
 
 public interface IQuestionSelectionService
 {

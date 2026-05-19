@@ -77,16 +77,6 @@ public class ProfileController : ControllerBase
         return Ok(ApiResponse.Success());
     }
 
-    [HttpPut("skills")]
-    public async Task<ActionResult<ApiResponse>> UpdateSkills(
-        [FromBody] UpdateUserSkillsRequest request,
-        CancellationToken ct)
-    {
-        var userId = GetCurrentUserId();
-        await _profileService.UpdateSkillTagsAsync(userId, request.TagIds, ct);
-        return Ok(ApiResponse.Success());
-    }
-
     private Guid GetCurrentUserId()
     {
         var raw = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value

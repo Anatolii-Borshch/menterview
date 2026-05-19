@@ -1,5 +1,6 @@
 using Menterview.Application.Contracts;
 using Menterview.Application.Contracts.Repository;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos;
 using Menterview.Application.Dtos.Admin;
 using Menterview.Application.Dtos.Sub;

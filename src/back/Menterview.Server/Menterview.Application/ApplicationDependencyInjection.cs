@@ -1,5 +1,6 @@
 ﻿using Menterview.Application.Contracts;
 using Menterview.Application.Contracts.Loggining;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Implementations;
 using Menterview.Application.Implementations.Logging;
 using Microsoft.Extensions.DependencyInjection;

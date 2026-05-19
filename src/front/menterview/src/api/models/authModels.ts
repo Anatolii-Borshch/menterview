@@ -4,11 +4,22 @@ export interface RegisterRequest {
   firstName: string;
   lastName: string;
   categoryId: number;
+  levelId?: number;
 }
 
 export interface VerifyEmailRequest {
   email: string;
   code: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  newPassword: string;
 }
 
 export interface LoginRequest {

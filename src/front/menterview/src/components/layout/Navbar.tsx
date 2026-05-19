@@ -1,20 +1,37 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useAuthStore } from '../../api/useAuthStore';
 import agent from '../../api/agent';
 
 export const Navbar = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, role } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await agent.auth.logout();
+    toast.success('Signed out.');
     navigate('/login');
   };
+
+  const isActive = (path: string) =>
+    location.pathname === path || location.pathname.startsWith(path + '/');
+
+  const NavLink = ({ to, label }: { to: string; label: string }) => (
+    <Link
+      to={to}
+      className={`text-sm font-medium transition-colors ${
+        isActive(to) ? 'text-navy' : 'text-navy/50 hover:text-navy'
+      }`}
+    >
+      {label}
+    </Link>
+  );
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-snow border-b border-periwinkle">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 group">
+        <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-2 group">
           <div className="w-8 h-8 bg-navy rounded-lg flex items-center justify-center">
             <span className="text-snow text-sm font-bold">M</span>
           </div>
@@ -26,30 +43,34 @@ export const Navbar = () => {
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8">
-          <Link to="/problems" className="text-navy/60 hover:text-navy text-sm font-medium transition-colors">
-            Problems
-          </Link>
-          <Link to="/leaderboard" className="text-navy/60 hover:text-navy text-sm font-medium transition-colors">
-            Leaderboard
-          </Link>
-          <Link to="/discuss" className="text-navy/60 hover:text-navy text-sm font-medium transition-colors">
-            Discuss
-          </Link>
-        </div>
+        {isAuthenticated && (
+          <div className="hidden md:flex items-center gap-7">
+            <NavLink to="/interview/start" label="Interview" />
+            <NavLink to="/questions" label="Questions" />
+            <NavLink to="/history" label="History" />
+            <NavLink to="/stats" label="Stats" />
+            {role === 'Administrator' && (
+              <NavLink to="/admin/users" label="Admin" />
+            )}
+          </div>
+        )}
 
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
             <>
               <Link
                 to="/profile"
-                className="w-8 h-8 rounded-full bg-periwinkle flex items-center justify-center text-navy text-sm font-semibold hover:bg-cornflower hover:text-snow transition-colors"
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+                  isActive('/profile')
+                    ? 'bg-navy text-snow'
+                    : 'bg-periwinkle text-navy hover:bg-cornflower hover:text-snow'
+                }`}
               >
-                U
+                P
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-sm text-navy/60 hover:text-navy transition-colors"
+                className="text-sm text-navy/50 hover:text-navy transition-colors"
               >
                 Sign out
               </button>

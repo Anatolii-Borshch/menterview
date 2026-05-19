@@ -7,8 +7,10 @@ interface AuthState {
   refreshToken: string | null;
   userId: string | null;
   expiresAt: string | null;
+  role: string | null;
   isAuthenticated: boolean;
   setAuth: (data: AuthResponse) => void;
+  setRole: (role: string) => void;
   clearAuth: () => void;
 }
 
@@ -19,6 +21,7 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       userId: null,
       expiresAt: null,
+      role: null,
       isAuthenticated: false,
 
       setAuth: (data) =>
@@ -30,12 +33,15 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
         }),
 
+      setRole: (role) => set({ role }),
+
       clearAuth: () =>
         set({
           accessToken: null,
           refreshToken: null,
           userId: null,
           expiresAt: null,
+          role: null,
           isAuthenticated: false,
         }),
     }),
@@ -46,8 +52,10 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: state.refreshToken,
         userId: state.userId,
         expiresAt: state.expiresAt,
+        role: state.role,
         isAuthenticated: state.isAuthenticated,
       }),
     },
   ),
 );
+

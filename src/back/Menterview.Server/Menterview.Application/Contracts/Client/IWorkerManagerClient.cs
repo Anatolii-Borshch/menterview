@@ -1,6 +1,6 @@
 using Menterview.Application.Dtos.Session;
 
-namespace Menterview.Application.Contracts;
+namespace Menterview.Application.Contracts.Client;
 
 public interface IWorkerManagerClient
 {

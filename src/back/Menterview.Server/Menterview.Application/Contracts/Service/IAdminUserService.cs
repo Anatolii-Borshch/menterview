@@ -1,7 +1,7 @@
 using Menterview.Application.Dtos;
 using Menterview.Application.Dtos.Admin;
 
-namespace Menterview.Application.Contracts;
+namespace Menterview.Application.Contracts.Service;
 
 public interface IAdminUserService
 {

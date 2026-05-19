@@ -1,6 +1,6 @@
 using Menterview.Application.Dtos.WeakPoint;
 
-namespace Menterview.Application.Contracts;
+namespace Menterview.Application.Contracts.Service;
 
 public interface IWeakTopicService
 {

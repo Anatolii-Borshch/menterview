@@ -6,7 +6,5 @@ public record RegisterRequest(
     string FirstName,
     string LastName,
     int CategoryId,
-    int? LevelId = null,
-    IReadOnlyList<int>? TagIds = null
+    int? LevelId = null
 );
-    );

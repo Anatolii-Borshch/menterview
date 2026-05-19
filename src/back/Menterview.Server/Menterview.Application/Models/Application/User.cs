@@ -23,8 +23,6 @@ public class User
     public int RoleId { get; set; }
     public Role Role { get; set; } = null!;
 
-    public IReadOnlyList<Tag> SkillTags { get; set; } = [];
-
     public Setting Setting { get; set; } = null!;
     public ICollection<SessionStory> Sessions { get; set; } = new List<SessionStory>();
     public ICollection<NewQuestion> SuggestedQuestions { get; set; } = new List<NewQuestion>();

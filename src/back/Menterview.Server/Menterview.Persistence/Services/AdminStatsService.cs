@@ -1,4 +1,5 @@
 using Menterview.Application.Contracts;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.Stats;
 using Menterview.Domain.Enums;
 using Menterview.Persistence.DbContext;

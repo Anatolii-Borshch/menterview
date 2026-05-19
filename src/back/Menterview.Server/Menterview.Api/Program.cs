@@ -1,4 +1,5 @@
 using System.Text;
+using Menterview.Api;
 using Menterview.Api.Middleware;
 using Menterview.Application;
 using Menterview.Identity;
@@ -89,6 +90,7 @@ using (var scope = app.Services.CreateScope())
 {
     await scope.ServiceProvider.GetRequiredService<MenterviewDbContext>().Database.MigrateAsync();
     await scope.ServiceProvider.GetRequiredService<MenterviewIdentityDbContext>().Database.MigrateAsync();
+    await AdminSeeder.SeedAsync(scope.ServiceProvider);
 }
 
 app.UseMiddleware<ExceptionMiddleware>();

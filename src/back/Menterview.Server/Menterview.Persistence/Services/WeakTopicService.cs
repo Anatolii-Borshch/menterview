@@ -1,4 +1,5 @@
 using Menterview.Application.Contracts;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.Sub;
 using Menterview.Application.Dtos.WeakPoint;
 using Menterview.Persistence.DbContext;

@@ -1,5 +1,6 @@
 ﻿using Menterview.Application.Contracts;
 using Menterview.Application.Contracts.Repository;
+using Menterview.Application.Contracts.Service;
 using Menterview.Persistence.DbContext;
 using Menterview.Persistence.Repositories;
 using Menterview.Persistence.Services;
@@ -18,6 +19,7 @@ namespace Menterview.Persistence
             services.AddScoped<ISessionRepository, SessionRepository>();
             services.AddScoped<IAdminUserService, AdminUserService>();
             services.AddScoped<IQuestionModerationService, QuestionModerationService>();
+            services.AddScoped<IQuestionQueryService, QuestionQueryService>();
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<IQuestionSelectionService, QuestionSelectionService>();
             services.AddScoped<ISessionOrchestrationService, SessionOrchestrationService>();

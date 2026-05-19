@@ -3,6 +3,7 @@ using Menterview.Api.Models.Difficulty;
 using Menterview.Api.Models.General;
 using Menterview.Api.Models.Tag;
 using Menterview.Application.Contracts;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.Sub;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +21,7 @@ public class AdminReferenceController : ControllerBase
     {
         _referenceService = referenceService;
     }
-
-    // ── Categories ───────────────────────────────────────────────────────────
-
+    
     [HttpPost("categories")]
     public async Task<ActionResult<ApiResponse<CategoryDto>>> CreateCategory(
         CreateCategoryRequest request, CancellationToken ct)
@@ -45,9 +44,7 @@ public class AdminReferenceController : ControllerBase
         await _referenceService.DeleteCategoryAsync(categoryId, ct);
         return Ok(ApiResponse.Success());
     }
-
-    // ── Tags ─────────────────────────────────────────────────────────────────
-
+    
     [HttpPost("tags")]
     public async Task<ActionResult<ApiResponse<TagDto>>> CreateTag(
         CreateTagRequest request, CancellationToken ct)
@@ -70,9 +67,7 @@ public class AdminReferenceController : ControllerBase
         await _referenceService.DeleteTagAsync(tagId, ct);
         return Ok(ApiResponse.Success());
     }
-
-    // ── Difficulties ──────────────────────────────────────────────────────────
-
+    
     [HttpPost("difficulties")]
     public async Task<ActionResult<ApiResponse<DifficultyDto>>> CreateDifficulty(
         CreateDifficultyRequest request, CancellationToken ct)

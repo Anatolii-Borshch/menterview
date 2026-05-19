@@ -1,6 +1,7 @@
 using Menterview.Api.Models.General;
 using Menterview.Api.Models.Stats;
 using Menterview.Application.Contracts;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.Stats;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -3,7 +3,7 @@ using Menterview.Application.Dtos.Admin;
 using Menterview.Application.Dtos.Question;
 using Menterview.Domain.Enums;
 
-namespace Menterview.Application.Contracts;
+namespace Menterview.Application.Contracts.Service;
 
 public interface IQuestionModerationService
 {
@@ -21,4 +21,7 @@ public interface IQuestionModerationService
     Task RejectSuggestionAsync(long suggestionId, string? rejectionReason, CancellationToken ct = default);
 
     Task DeleteQuestionAsync(long questionId, CancellationToken ct = default);
+
+    Task<long> SuggestQuestionAsync(Guid userId, string questionText, string answer,
+        int categoryId, int difficultyId, IEnumerable<int> tagIds, CancellationToken ct = default);
 }

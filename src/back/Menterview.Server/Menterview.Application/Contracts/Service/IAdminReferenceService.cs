@@ -1,6 +1,6 @@
 using Menterview.Application.Dtos.Sub;
 
-namespace Menterview.Application.Contracts;
+namespace Menterview.Application.Contracts.Service;
 
 public interface IAdminReferenceService
 {

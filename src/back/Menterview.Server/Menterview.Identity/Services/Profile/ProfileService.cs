@@ -67,12 +67,6 @@ public class ProfileService : IProfileService
         _logger.LogInformation("User {UserId} updated level to {LevelId}.", userId, levelId);
     }
 
-    public async Task UpdateSkillTagsAsync(Guid userId, IReadOnlyList<int> tagIds, CancellationToken ct = default)
-    {
-        await _userRepo.UpdateSkillTagsAsync(userId, tagIds, ct);
-        _logger.LogInformation("User {UserId} updated skill tags.", userId);
-    }
-
     private static UserProfileDto MapToDto(ApplicationUser user)
     {
         var dto = new UserProfileDto
@@ -97,11 +91,6 @@ public class ProfileService : IProfileService
                 LevelId = user.Level.LevelId,
                 LevelName = user.Level.LevelName
             },
-            SkillTags = user.SkillTags.Select(t => new TagDto
-            {
-                TagId = t.TagId,
-                TagName = t.TagName
-            }).ToList(),
             Role = new RoleDto
             {
                 RoleId = user.Role.RoleId,

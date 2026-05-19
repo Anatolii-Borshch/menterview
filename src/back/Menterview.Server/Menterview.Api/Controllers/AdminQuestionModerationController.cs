@@ -2,6 +2,7 @@ using Menterview.Api.Models.Admin;
 using Menterview.Api.Models.General;
 using Menterview.Api.Models.Question;
 using Menterview.Application.Contracts;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.Admin;
 using Menterview.Application.Dtos.Question;
 using Microsoft.AspNetCore.Authorization;
@@ -20,8 +21,7 @@ public class AdminQuestionModerationController : ControllerBase
     {
         _moderationService = moderationService;
     }
-
-    // GET api/admin/questions
+    
     [HttpGet]
     public async Task<ActionResult<ApiResponse<PagedResult<AdminQuestionListItemDto>>>> GetAllQuestions(
         [FromQuery] GetAdminQuestionsQuery query, CancellationToken ct)
@@ -40,7 +40,6 @@ public class AdminQuestionModerationController : ControllerBase
         }));
     }
 
-    // GET api/admin/questions/pending
     [HttpGet("pending")]
     public async Task<ActionResult<ApiResponse<PagedResult<PendingQuestionDto>>>> GetPendingQuestions(
         [FromQuery] GetPendingQuestionsQuery query, CancellationToken ct)
@@ -57,7 +56,6 @@ public class AdminQuestionModerationController : ControllerBase
         }));
     }
 
-    // GET api/admin/questions/pending/{suggestionId:long}
     [HttpGet("pending/{suggestionId:long}")]
     public async Task<ActionResult<ApiResponse<PendingQuestionDetailsDto>>> GetPendingSuggestion(
         long suggestionId, CancellationToken ct)
@@ -66,7 +64,6 @@ public class AdminQuestionModerationController : ControllerBase
         return Ok(ApiResponse<PendingQuestionDetailsDto>.Success(result));
     }
 
-    // POST api/admin/questions/pending/{suggestionId:long}/approve
     [HttpPost("pending/{suggestionId:long}/approve")]
     public async Task<ActionResult<ApiResponse>> ApproveSuggestion(long suggestionId, CancellationToken ct)
     {
@@ -74,7 +71,6 @@ public class AdminQuestionModerationController : ControllerBase
         return Ok(ApiResponse.Success());
     }
 
-    // POST api/admin/questions/pending/{suggestionId:long}/reject
     [HttpPost("pending/{suggestionId:long}/reject")]
     public async Task<ActionResult<ApiResponse>> RejectSuggestion(
         long suggestionId, [FromBody] RejectSuggestionRequest request, CancellationToken ct)
@@ -83,7 +79,6 @@ public class AdminQuestionModerationController : ControllerBase
         return Ok(ApiResponse.Success());
     }
 
-    // DELETE api/admin/questions/{questionId:long}
     [HttpDelete("{questionId:long}")]
     public async Task<ActionResult<ApiResponse>> DeleteQuestion(long questionId, CancellationToken ct)
     {
