@@ -34,4 +34,16 @@ public class ReferenceRepository : IReferenceRepository
 
     public async Task<IEnumerable<Tag>> GetTagsAsync(CancellationToken ct = default)
         => await _businessDb.Tags.AsNoTracking().ToListAsync(ct);
+
+    public async Task<IEnumerable<Country>> GetCountriesAsync(CancellationToken ct = default)
+        => await _businessDb.Countries.AsNoTracking().ToListAsync(ct);
+
+    public async Task<IEnumerable<Language>> GetLanguagesAsync(CancellationToken ct = default)
+        => await _businessDb.Languages.AsNoTracking().ToListAsync(ct);
+
+    public async Task<IEnumerable<Theme>> GetThemesAsync(CancellationToken ct = default)
+        => await _businessDb.Themes.AsNoTracking().ToListAsync(ct);
+
+    public async Task<IEnumerable<Role>> GetRolesAsync(CancellationToken ct = default)
+        => await _businessDb.Roles.AsNoTracking().ToListAsync(ct);
 }

@@ -18,26 +18,26 @@ public class SessionOrchestrationService : ISessionOrchestrationService
     private readonly IQuestionSelectionService _questionSelection;
     private readonly ISessionTokenService _sessionTokenService;
     private readonly IWorkerManagerClient _workerManager;
-    private readonly IUserRepository _userRepo;
     private readonly MenterviewDbContext _db;
     private readonly IConfiguration _configuration;
+    private readonly IQuestionRephraseService _rephraseService;
 
     public SessionOrchestrationService(
         ISessionRepository sessionRepo,
         IQuestionSelectionService questionSelection,
         ISessionTokenService sessionTokenService,
         IWorkerManagerClient workerManager,
-        IUserRepository userRepo,
         MenterviewDbContext db,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IQuestionRephraseService rephraseService)
     {
         _sessionRepo = sessionRepo;
         _questionSelection = questionSelection;
         _sessionTokenService = sessionTokenService;
         _workerManager = workerManager;
-        _userRepo = userRepo;
         _db = db;
         _configuration = configuration;
+        _rephraseService = rephraseService;
     }
 
     public async Task<SessionStartedDto> StartSessionAsync(Guid userId, StartSessionCommand command, CancellationToken ct = default)
@@ -50,6 +50,39 @@ public class SessionOrchestrationService : ISessionOrchestrationService
             command.QuestionsAmount,
             command.WeakTopicRatio,
             ct);
+
+        if (questions.Count == 0)
+            throw new InvalidOperationException("No questions matched the selected filters. Try another category/difficulty or disable weak-topic focus.");
+
+        var needRephrase = questions.Where(q => q.IsWeakTopicReview && string.IsNullOrEmpty(q.RephrasedText)).ToList();
+        foreach (var q in needRephrase)
+        {
+            try
+            {
+                q.RephrasedText = await _rephraseService.RephraseAsync(q.QuestionText, ct);
+            }
+            catch
+            {
+                // Rephrase is best-effort
+            }
+        }
+
+        if (needRephrase.Any(q => !string.IsNullOrEmpty(q.RephrasedText)))
+        {
+            var rephraseMap = needRephrase
+                .Where(q => !string.IsNullOrEmpty(q.RephrasedText))
+                .ToDictionary(q => q.QuestionId, q => q.RephrasedText!);
+
+            var weakTopics = await _db.WeakTopics
+                .Where(w => w.UserId == userId && rephraseMap.Keys.Contains(w.OriginalQuestionId!.Value))
+                .ToListAsync(ct);
+
+            foreach (var wt in weakTopics)
+                if (wt.OriginalQuestionId.HasValue && rephraseMap.TryGetValue(wt.OriginalQuestionId.Value, out var rt))
+                    wt.RephrasedQuestion = rt;
+
+            await _db.SaveChangesAsync(ct);
+        }
 
         var session = new SessionStory
         {
@@ -109,13 +142,12 @@ public class SessionOrchestrationService : ISessionOrchestrationService
             ?? throw new KeyNotFoundException($"Session {command.SessionId} not found.");
 
         if (session.Status == SessionStatus.Completed)
-            return; // idempotent
+            return;
 
-        // Persist answers
         foreach (var dto in command.Answers)
         {
             if (session.Answers.Any(a => a.QuestionId == dto.QuestionId))
-                continue; // idempotent
+                continue;
 
             var answer = new Answer
             {
@@ -123,6 +155,8 @@ public class SessionOrchestrationService : ISessionOrchestrationService
                 QuestionId = dto.QuestionId,
                 AnswerText = dto.AnswerText,
                 AiReply = dto.AiReply,
+                Correctness = dto.Correctness,
+                Completeness = dto.Completeness,
                 Accuracy = dto.Accuracy,
                 AnsweringTime = dto.AnsweringTime,
                 WasRephrased = dto.WasRephrased,
@@ -131,7 +165,6 @@ public class SessionOrchestrationService : ISessionOrchestrationService
             _db.Answers.Add(answer);
         }
 
-        // Persist AI-generated follow-up questions
         foreach (var q in command.AiGeneratedQuestions)
         {
             _db.SessionFollowUpQuestions.Add(new SessionFollowUpQuestion
@@ -155,7 +188,6 @@ public class SessionOrchestrationService : ISessionOrchestrationService
 
         await _db.SaveChangesAsync(ct);
 
-        // Update weak topics for low-accuracy answers
         await UpdateWeakTopicsAsync(session.UserId, answers, ct);
     }
 
@@ -164,7 +196,7 @@ public class SessionOrchestrationService : ISessionOrchestrationService
         const int weakThreshold = 70;
 
         var weakAnswers = answers.Where(a => a.Accuracy < weakThreshold).ToList();
-        if (!weakAnswers.Count.Equals(0) == false) return;
+        if (weakAnswers.Count.Equals(0)) return;
 
         var questionIds = weakAnswers.Select(a => a.QuestionId).ToList();
         var questions = await _db.Questions
@@ -177,10 +209,10 @@ public class SessionOrchestrationService : ISessionOrchestrationService
             var question = questions.FirstOrDefault(q => q.QuestionId == answer.QuestionId);
             if (question == null) continue;
 
-            foreach (var qt in question.QuestionTags)
+            foreach (var tagId in question.QuestionTags.Select(qt => qt.TagId))
             {
                 var weakTopic = await _db.WeakTopics
-                    .FirstOrDefaultAsync(w => w.UserId == userId && w.TagId == qt.TagId && w.OriginalQuestionId == question.QuestionId, ct);
+                    .FirstOrDefaultAsync(w => w.UserId == userId && w.TagId == tagId && w.OriginalQuestionId == question.QuestionId, ct);
 
                 var score = answer.Accuracy / 100.0f;
 
@@ -189,7 +221,7 @@ public class SessionOrchestrationService : ISessionOrchestrationService
                     _db.WeakTopics.Add(new WeakTopic
                     {
                         UserId = userId,
-                        TagId = qt.TagId,
+                        TagId = tagId,
                         CategoryId = question.CategoryId,
                         DifficultyId = question.DifficultyId,
                         OriginalQuestionId = question.QuestionId,
@@ -201,7 +233,6 @@ public class SessionOrchestrationService : ISessionOrchestrationService
                 }
                 else
                 {
-                    // SM-2 inspired: update ease factor
                     const float alpha = 0.7f;
                     weakTopic.EaseFactor = alpha * weakTopic.EaseFactor + (1 - alpha) * (score * 2.5f + 1.3f);
                     weakTopic.EaseFactor = Math.Max(1.3f, weakTopic.EaseFactor);

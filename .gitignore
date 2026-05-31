@@ -1,2 +1,7 @@
 .spec
 .env
+.github
+.vscode
+.sonarqube
+*.properties
+.scannerwork

@@ -84,17 +84,17 @@ export default function HistoryPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-navy">{ses.categoryName}</p>
+                      <p className="text-sm font-medium text-navy">{ses.category?.categoryName ?? 'Category'}</p>
                       <p className="text-xs text-navy/40 mt-1">
-                        {ses.questionsAmount} questions · {formatTime(ses.totalTime)} · {formatDate(ses.createdAt)}
+                        {ses.questionsAmount} questions · {formatTime(ses.totalTime)} · {formatDate(ses.time)}
                       </p>
                     </div>
                     <div className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                      ses.score >= 80 ? 'bg-green-50 text-green-700'
-                      : ses.score >= 60 ? 'bg-yellow-50 text-yellow-700'
+                      ses.averageAccuracy >= 80 ? 'bg-green-50 text-green-700'
+                      : ses.averageAccuracy >= 60 ? 'bg-yellow-50 text-yellow-700'
                       : 'bg-red-50 text-red-600'
                     }`}>
-                      {ses.score}%
+                      {Math.round(ses.averageAccuracy)}%
                     </div>
                   </div>
                 </Link>

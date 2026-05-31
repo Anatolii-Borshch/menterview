@@ -45,4 +45,33 @@ public class ReferenceController : ControllerBase
         var result = await _referenceService.GetLevelsAsync(ct);
         return Ok(ApiResponse<IEnumerable<LevelDto>>.Success(result));
     }
+
+    [HttpGet("countries")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<CountryDto>>>> GetCountries(CancellationToken ct)
+    {
+        var result = await _referenceService.GetCountriesAsync(ct);
+        return Ok(ApiResponse<IEnumerable<CountryDto>>.Success(result));
+    }
+
+    [HttpGet("languages")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<LanguageDto>>>> GetLanguages(CancellationToken ct)
+    {
+        var result = await _referenceService.GetLanguagesAsync(ct);
+        return Ok(ApiResponse<IEnumerable<LanguageDto>>.Success(result));
+    }
+
+    [HttpGet("themes")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<ThemeDto>>>> GetThemes(CancellationToken ct)
+    {
+        var result = await _referenceService.GetThemesAsync(ct);
+        return Ok(ApiResponse<IEnumerable<ThemeDto>>.Success(result));
+    }
+
+    [HttpGet("roles")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<ActionResult<ApiResponse<IEnumerable<RoleDto>>>> GetRoles(CancellationToken ct)
+    {
+        var result = await _referenceService.GetRolesAsync(ct);
+        return Ok(ApiResponse<IEnumerable<RoleDto>>.Success(result));
+    }
 }

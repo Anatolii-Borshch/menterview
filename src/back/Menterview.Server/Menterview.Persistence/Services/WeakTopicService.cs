@@ -78,6 +78,6 @@ public class WeakTopicService : IWeakTopicService
         RepeatCount = w.RepeatCount,
         EaseFactor = w.EaseFactor,
         NextReviewAt = w.NextReviewAt,
-        LastAccuracy = 0 // not stored on WeakTopic; would need last Answer lookup if desired
+        LastAccuracy = 0
     };
 }

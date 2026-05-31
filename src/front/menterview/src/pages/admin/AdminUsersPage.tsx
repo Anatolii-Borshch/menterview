@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import adminApi from '../../api/adminApi';
+import AdminPanelLayout from '../../components/admin/AdminPanelLayout';
 import type { AdminUserListItemDto } from '../../api/models/adminModels';
 
 const PAGE_SIZE = 15;
@@ -41,19 +42,10 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-snow">
-      <div className="max-w-5xl mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl text-navy" style={{ fontFamily: 'DM Serif Display, serif' }}>Users</h1>
-            <p className="text-xs text-navy/40 mt-1">Admin panel</p>
-          </div>
-          <Link to="/admin/questions/pending" className="text-sm text-cornflower hover:underline">
-            Pending questions →
-          </Link>
-        </div>
-
-        {/* Search */}
+    <AdminPanelLayout
+      title="Users"
+      subtitle="Search users, inspect details, manage roles, and apply delete actions."
+    >
         <div className="mb-4">
           <input
             type="text"
@@ -139,7 +131,6 @@ export default function AdminUsersPage() {
             )}
           </>
         )}
-      </div>
-    </div>
+    </AdminPanelLayout>
   );
 }

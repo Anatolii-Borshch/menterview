@@ -36,5 +36,16 @@ export interface SuggestQuestionRequest {
   answer: string;
   categoryId: number;
   difficultyId: number;
-  tagIds?: number[];
+  tagIds: number[];
+}
+
+export interface CheckAnswerRequest {
+  answerText: string;
+}
+
+export interface CheckAnswerResponse {
+  accuracy: number;
+  correctness: number;
+  completeness: number;
+  aiReply: string;
 }

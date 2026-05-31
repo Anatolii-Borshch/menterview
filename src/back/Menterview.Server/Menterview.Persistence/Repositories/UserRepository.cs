@@ -180,7 +180,6 @@ public class UserRepository : IUserRepository
         var identityUser = await _userManager.FindByIdAsync(userId.ToString())
                            ?? throw new KeyNotFoundException($"Identity user {userId} not found");
 
-        // Replace identity roles
         var currentRoles = await _userManager.GetRolesAsync(identityUser);
         await _userManager.RemoveFromRolesAsync(identityUser, currentRoles);
         await _userManager.AddToRoleAsync(identityUser, roleName);

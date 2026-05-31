@@ -30,7 +30,7 @@ export default function DashboardPage() {
 
   const avgScore =
     sessions.length > 0
-      ? Math.round(sessions.reduce((s, ses) => s + ses.score, 0) / sessions.length)
+      ? Math.round(sessions.reduce((s, ses) => s + ses.averageAccuracy, 0) / sessions.length)
       : null;
 
   const formatTime = (seconds: number) => {
@@ -53,7 +53,6 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-snow">
       <div className="max-w-5xl mx-auto px-6 py-10">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl text-navy" style={{ fontFamily: 'DM Serif Display, serif' }}>
             {profile ? `Welcome back, ${profile.firstName}` : 'Dashboard'}
@@ -67,13 +66,12 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Stats row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Sessions done', value: sessions.length > 0 ? `${sessions.length}+` : '0', sub: 'total' },
             { label: 'Avg. score', value: avgScore !== null ? `${avgScore}%` : '—', sub: 'last 3 sessions' },
             { label: 'Focus area', value: profile?.category.categoryName ?? '—', sub: 'category' },
-            { label: 'Level', value: profile?.level?.levelName ?? '—', sub: 'current level' },
+            { label: 'Level', value: profile?.level?.levelName ?? 'Not set', sub: 'current level' },
           ].map((stat) => (
             <div key={stat.label} className="bg-white border border-periwinkle rounded-2xl p-5">
               <p className="text-xs text-navy/40 mb-1">{stat.label}</p>
@@ -83,7 +81,6 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Quick actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Link
             to="/interview/start"
@@ -117,7 +114,6 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Recent sessions */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg text-navy" style={{ fontFamily: 'DM Serif Display, serif' }}>
@@ -148,19 +144,19 @@ export default function DashboardPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-navy">{ses.categoryName}</p>
+                      <p className="text-sm font-medium text-navy">{ses.category?.categoryName ?? 'Category'}</p>
                       <p className="text-xs text-navy/40 mt-0.5">
-                        {ses.questionsAmount} questions · {formatTime(ses.totalTime)} · {formatDate(ses.createdAt)}
+                        {ses.questionsAmount} questions · {formatTime(ses.totalTime)} · {formatDate(ses.time)}
                       </p>
                     </div>
                     <div className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                      ses.score >= 80
+                      ses.averageAccuracy >= 80
                         ? 'bg-green-50 text-green-700'
-                        : ses.score >= 60
+                        : ses.averageAccuracy >= 60
                         ? 'bg-yellow-50 text-yellow-700'
                         : 'bg-red-50 text-red-600'
                     }`}>
-                      {ses.score}%
+                      {Math.round(ses.averageAccuracy)}%
                     </div>
                   </div>
                 </Link>

@@ -11,4 +11,8 @@ public interface IReferenceRepository
     Task<IEnumerable<Difficulty>> GetDifficultiesAsync(CancellationToken ct = default);
     Task<IEnumerable<Level>> GetLevelsAsync(CancellationToken ct = default);
     Task<IEnumerable<Tag>> GetTagsAsync(CancellationToken ct = default);
+    Task<IEnumerable<Country>> GetCountriesAsync(CancellationToken ct = default);
+    Task<IEnumerable<Language>> GetLanguagesAsync(CancellationToken ct = default);
+    Task<IEnumerable<Theme>> GetThemesAsync(CancellationToken ct = default);
+    Task<IEnumerable<Role>> GetRolesAsync(CancellationToken ct = default);
 }

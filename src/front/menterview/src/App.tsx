@@ -19,9 +19,11 @@ import StatsPage from './pages/StatsPage';
 import InterviewStartPage from './pages/InterviewStartPage';
 import InterviewSessionPage from './pages/InterviewSessionPage';
 import SuggestQuestionPage from './pages/SuggestQuestionPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminUserDetailPage from './pages/admin/AdminUserDetailPage';
 import AdminPendingQuestionsPage from './pages/admin/AdminPendingQuestionsPage';
+import AdminReferencePage from './pages/admin/AdminReferencePage';
 
 function App() {
   return (
@@ -58,9 +60,11 @@ function App() {
           </Route>
 
           <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminDashboardPage />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/users/:userId" element={<AdminUserDetailPage />} />
             <Route path="/admin/questions/pending" element={<AdminPendingQuestionsPage />} />
+            <Route path="/admin/reference" element={<AdminReferencePage />} />
           </Route>
         </Route>
       </Routes>

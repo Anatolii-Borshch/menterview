@@ -1,3 +1,5 @@
+import type { CategoryDto, DifficultyDto, TagDto } from './referenceModels';
+
 export interface AdminUserListItemDto {
   userId: string;
   email: string;
@@ -17,11 +19,19 @@ export interface AdminUserDetailsDto extends AdminUserListItemDto {
 
 export interface AdminQuestionListItemDto {
   suggestionId: number;
-  question: string;
-  answer: string;
-  authorEmail: string;
+  questionText: string;
+  type: string;
+  submittedByUserId?: string;
+  submittedByName?: string;
   createdAt: string;
   status: 'PendingReview' | 'Approved' | 'Rejected';
+}
+
+export interface PendingQuestionDetailsDto extends AdminQuestionListItemDto {
+  answer: string;
+  category: CategoryDto;
+  difficulty: DifficultyDto;
+  tags: TagDto[];
 }
 
 export interface AssignRoleRequest {
@@ -29,5 +39,9 @@ export interface AssignRoleRequest {
 }
 
 export interface RejectSuggestionRequest {
-  reason: string;
+  rejectionReason?: string;
+}
+
+export interface UpdateSuggestionTagsRequest {
+  tagIds: number[];
 }

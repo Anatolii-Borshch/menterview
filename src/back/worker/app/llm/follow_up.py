@@ -9,10 +9,8 @@ SYSTEM_PROMPT = (
     '{"question_text": "<string>", "answer": "<string>"}'
 )
 
-# Thresholds for triggering follow-up generation
 CORRECTNESS_THRESHOLD  = 60
 COMPLETENESS_THRESHOLD = 65
-
 
 class FollowUpGenerator:
     def __init__(self, client: LlmClient):
@@ -28,10 +26,9 @@ class FollowUpGenerator:
         user_answer:    str,
         category_id:    int,
         difficulty_id:  int,
+        source_tag_ids: list[int],
     ) -> dict | None:
-        """
-        Returns a dict matching AiGeneratedQuestionDto shape, or None on failure.
-        """
+
         user_prompt = (
             f"Original question: {question_text}\n"
             f"Correct answer: {correct_answer}\n"
@@ -49,7 +46,7 @@ class FollowUpGenerator:
                 "answer":       result["answer"],
                 "categoryId":   category_id,
                 "difficultyId": difficulty_id,
-                "tagIds":       [],
+                "tagIds":       sorted({int(tag_id) for tag_id in source_tag_ids}),
             }
         except (json.JSONDecodeError, KeyError):
             print(f"FollowUpGenerator: failed to parse LLM response: {raw!r}")

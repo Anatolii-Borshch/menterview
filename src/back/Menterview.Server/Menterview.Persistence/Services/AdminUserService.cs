@@ -14,16 +14,13 @@ namespace Menterview.Persistence.Services;
 public class AdminUserService : IAdminUserService
 {
     private readonly IUserRepository _userRepo;
-    private readonly UserManager<AppIdentityUser> _userManager;
     private readonly MenterviewDbContext _businessDb;
 
     public AdminUserService(
         IUserRepository userRepo,
-        UserManager<AppIdentityUser> userManager,
         MenterviewDbContext businessDb)
     {
         _userRepo = userRepo;
-        _userManager = userManager;
         _businessDb = businessDb;
     }
 

@@ -20,6 +20,8 @@ public interface IQuestionModerationService
 
     Task RejectSuggestionAsync(long suggestionId, string? rejectionReason, CancellationToken ct = default);
 
+    Task UpdatePendingSuggestionTagsAsync(long suggestionId, IEnumerable<int> tagIds, CancellationToken ct = default);
+
     Task DeleteQuestionAsync(long questionId, CancellationToken ct = default);
 
     Task<long> SuggestQuestionAsync(Guid userId, string questionText, string answer,

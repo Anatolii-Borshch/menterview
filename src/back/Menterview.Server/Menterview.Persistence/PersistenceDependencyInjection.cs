@@ -26,6 +26,7 @@ namespace Menterview.Persistence
             services.AddScoped<IWeakTopicService, WeakTopicService>();
             services.AddScoped<IAdminStatsService, AdminStatsService>();
             services.AddScoped<IAdminReferenceService, AdminReferenceService>();
+            services.AddScoped<ISystemStatusService, SystemStatusService>();
 
             services.AddDbContext<MenterviewDbContext>(options =>
             {

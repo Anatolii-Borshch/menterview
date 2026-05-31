@@ -28,7 +28,7 @@ export default function StatsPage() {
     return () => { cancelled = true; };
   }, [granularity]);
 
-  const maxScore = Math.max(...trend.map((t) => t.score), 100);
+  const maxScore = Math.max(...trend.map((t) => t.averageAccuracy), 100);
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString('en-US', {
@@ -39,8 +39,8 @@ export default function StatsPage() {
   const avg = (arr: number[]) =>
     arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
 
-  const avgScore = avg(trend.map((t) => t.score));
-  const avgCorrectness = avg(trend.map((t) => t.averageCorrectness));
+  const avgScore = avg(trend.map((t) => t.averageAccuracy));
+  const avgAnswered = avg(trend.map((t) => t.answeredCount));
 
   return (
     <div className="min-h-screen bg-snow">
@@ -49,12 +49,11 @@ export default function StatsPage() {
           Statistics
         </h1>
 
-        {/* Summary cards */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
             { label: 'Total sessions', value: stats?.totalSessionsCount ?? 0 },
             { label: 'Avg. score', value: `${avgScore}%` },
-            { label: 'Avg. correctness', value: `${avgCorrectness}%` },
+            { label: 'Avg. answered', value: avgAnswered },
           ].map((s) => (
             <div key={s.label} className="bg-white border border-periwinkle rounded-2xl p-5 text-center">
               <p className="text-2xl font-semibold text-navy">{s.value}</p>
@@ -63,7 +62,6 @@ export default function StatsPage() {
           ))}
         </div>
 
-        {/* Granularity picker */}
         <div className="flex gap-2 mb-6">
           {(['day', 'week', 'month'] as Granularity[]).map((g) => (
             <button
@@ -80,7 +78,6 @@ export default function StatsPage() {
           ))}
         </div>
 
-        {/* Chart */}
         <div className="bg-white border border-periwinkle rounded-2xl p-6">
           <p className="text-xs text-navy/40 mb-4">Score over time</p>
 
@@ -94,7 +91,6 @@ export default function StatsPage() {
             </div>
           ) : (
             <div className="relative">
-              {/* Bar chart */}
               <div className="flex items-end gap-1 h-48">
                 {trend.map((point, idx) => (
                   <div
@@ -102,22 +98,20 @@ export default function StatsPage() {
                     className="flex-1 flex flex-col items-center gap-1 group"
                   >
                     <div className="relative w-full">
-                      {/* Tooltip */}
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
                         <div className="bg-navy text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap">
-                          {point.score}% · {formatDate(point.date)}
+                          {Math.round(point.averageAccuracy)}% · {formatDate(point.time)}
                         </div>
                       </div>
                       <div
                         className="w-full bg-cornflower/80 hover:bg-cornflower rounded-t-sm transition-colors"
-                        style={{ height: `${(point.score / maxScore) * 160}px` }}
+                        style={{ height: `${(point.averageAccuracy / maxScore) * 160}px` }}
                       />
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* X-axis labels (show ~5 evenly) */}
               <div className="flex mt-2 text-xs text-navy/30">
                 {trend
                   .filter((_, i) => i === 0 || i === trend.length - 1 || i % Math.ceil(trend.length / 4) === 0)
@@ -127,7 +121,7 @@ export default function StatsPage() {
                       className="flex-1 text-center"
                       style={{ flexBasis: `${100 / trend.length}%` }}
                     >
-                      {formatDate(point.date)}
+                      {formatDate(point.time)}
                     </span>
                   ))}
               </div>

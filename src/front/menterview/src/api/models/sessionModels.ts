@@ -1,33 +1,41 @@
+import type { CategoryDto, DifficultyDto } from './referenceModels';
+
 export interface SessionListItemDto {
-  sessionId: string;
-  categoryName: string;
+  sessionId: number;
+  time: string;
   questionsAmount: number;
+  answeredCount: number;
   totalTime: number;
-  score: number;
-  createdAt: string;
+  averageAccuracy: number;
+  category: CategoryDto;
+  difficulty: DifficultyDto;
 }
 
 export interface AnswerBreakdownDto {
-  questionId: number;
-  question: string;
-  answer: string;
+  answerId: number;
+  questionText: string;
+  rephrasedText?: string;
+  answerText: string;
   aiReply: string;
-  correctness: number;
-  completeness: number;
+  correctness?: number;
+  completeness?: number;
   accuracy: number;
-  answeringTime: string;
+  answeringTime: number;
+  wasRephrased: boolean;
+  wasWeakTopicReview: boolean;
+  category: CategoryDto;
+  difficulty: DifficultyDto;
 }
 
 export interface SessionDetailsDto {
-  sessionId: string;
-  categoryName: string;
+  sessionId: number;
+  time: string;
   questionsAmount: number;
-  unansweredCount: number;
+  answeredCount: number;
   totalTime: number;
-  averageCorrectness: number;
-  averageCompleteness: number;
-  score: number;
-  createdAt: string;
+  averageAccuracy: number;
+  category: CategoryDto;
+  difficulty: DifficultyDto;
   answers: AnswerBreakdownDto[];
 }
 
@@ -39,19 +47,19 @@ export interface UserSessionStatsDto {
 }
 
 export interface SessionTrendPointDto {
-  date: string;
-  score: number;
-  averageCorrectness: number;
-  averageCompleteness: number;
+  sessionId: number;
+  time: string;
+  averageAccuracy: number;
+  totalTime: number;
+  answeredCount: number;
 }
 
 export interface StartSessionRequest {
   categoryId?: number;
-  levelId?: number;
   difficultyId?: number;
-  questionCount: number;
+  questionsAmount: number;
   tagIds?: number[];
-  includeWeakTopics?: boolean;
+  weakTopicRatio?: number;
 }
 
 export interface SessionStartedDto {

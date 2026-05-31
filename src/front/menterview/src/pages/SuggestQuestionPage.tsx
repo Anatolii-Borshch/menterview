@@ -19,17 +19,50 @@ export default function SuggestQuestionPage() {
   const [difficulties, setDifficulties] = useState<DifficultyDto[]>([]);
   const [tags, setTags] = useState<TagDto[]>([]);
   const [loading, setLoading] = useState(false);
+  const [tagsLoading, setTagsLoading] = useState(true);
+  const [tagsError, setTagsError] = useState<string | null>(null);
 
-  useEffect(() => {
-    Promise.all([
+  const loadReferenceData = async () => {
+    setTagsLoading(true);
+    setTagsError(null);
+
+    const [cats, diffs, tgs] = await Promise.allSettled([
       referenceApi.getCategories(),
       referenceApi.getDifficulties(),
       referenceApi.getTags(),
-    ]).then(([cats, diffs, tgs]) => {
-      setCategories(cats.data.data ?? []);
-      setDifficulties(diffs.data.data ?? []);
-      setTags(tgs.data.data ?? []);
-    }).catch(() => toast.error('Failed to load reference data.'));
+    ]);
+
+    if (cats.status === 'fulfilled') {
+      setCategories(cats.value.data.data ?? []);
+    }
+
+    if (diffs.status === 'fulfilled') {
+      setDifficulties(diffs.value.data.data ?? []);
+    }
+
+    if (tgs.status === 'fulfilled') {
+      setTags(tgs.value.data.data ?? []);
+      if ((tgs.value.data.data ?? []).length === 0) {
+        setTagsError('No tags are available yet.');
+      }
+    } else {
+      setTags([]);
+      setTagsError('Failed to load tags.');
+    }
+
+    if (cats.status === 'rejected' || diffs.status === 'rejected') {
+      toast.error('Some reference data failed to load.');
+    }
+
+    if (tgs.status === 'rejected') {
+      toast.error('Failed to load tags.');
+    }
+
+    setTagsLoading(false);
+  };
+
+  useEffect(() => {
+    loadReferenceData();
   }, []);
 
   const toggleTag = (tagId: number) => {
@@ -45,6 +78,10 @@ export default function SuggestQuestionPage() {
     e.preventDefault();
     if (!form.categoryId || !form.difficultyId) {
       toast.error('Please select a category and difficulty.');
+      return;
+    }
+    if (!form.tagIds.length) {
+      toast.error('Please select at least one tag.');
       return;
     }
     setLoading(true);
@@ -77,7 +114,6 @@ export default function SuggestQuestionPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white border border-periwinkle rounded-2xl p-6 space-y-5">
-            {/* Question text */}
             <div>
               <label className="text-xs font-medium text-navy/60 block mb-1">Question</label>
               <textarea
@@ -91,7 +127,6 @@ export default function SuggestQuestionPage() {
               />
             </div>
 
-            {/* Answer */}
             <div>
               <label className="text-xs font-medium text-navy/60 block mb-1">Expected answer</label>
               <textarea
@@ -105,7 +140,6 @@ export default function SuggestQuestionPage() {
               />
             </div>
 
-            {/* Category + Difficulty */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-medium text-navy/60 block mb-1">Category</label>
@@ -137,28 +171,46 @@ export default function SuggestQuestionPage() {
               </div>
             </div>
 
-            {/* Tags */}
-            {tags.length > 0 && (
-              <div>
-                <label className="text-xs font-medium text-navy/60 block mb-2">Tags (optional)</label>
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <button
-                      key={tag.tagId}
-                      type="button"
-                      onClick={() => toggleTag(tag.tagId)}
-                      className={`py-1 px-3 rounded-full border text-xs transition-colors ${
-                        form.tagIds.includes(tag.tagId)
-                          ? 'border-cornflower bg-cornflower text-white'
-                          : 'border-periwinkle text-navy/60 hover:border-navy/30'
-                      }`}
-                    >
-                      {tag.tagName}
-                    </button>
-                  ))}
+            <div>
+              <label className="text-xs font-medium text-navy/60 block mb-2">Tags (required)</label>
+
+              {tagsLoading ? (
+                <div className="rounded-xl border border-periwinkle bg-snow px-4 py-3 text-sm text-navy/50">
+                  Loading tags...
                 </div>
-              </div>
-            )}
+              ) : tags.length > 0 ? (
+                <>
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                      <button
+                        key={tag.tagId}
+                        type="button"
+                        onClick={() => toggleTag(tag.tagId)}
+                        className={`py-1 px-3 rounded-full border text-xs transition-colors ${
+                          form.tagIds.includes(tag.tagId)
+                            ? 'border-cornflower bg-cornflower text-white'
+                            : 'border-periwinkle text-navy/60 hover:border-navy/30'
+                        }`}
+                      >
+                        {tag.tagName}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-navy/40 mt-2">Select at least one tag.</p>
+                </>
+              ) : (
+                <div className="rounded-xl border border-periwinkle bg-snow px-4 py-3 text-sm text-navy/60">
+                  <p>{tagsError ?? 'No tags are available.'}</p>
+                  <button
+                    type="button"
+                    onClick={loadReferenceData}
+                    className="mt-2 text-xs text-cornflower hover:underline"
+                  >
+                    Retry loading tags
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex gap-3">

@@ -53,4 +53,28 @@ public class ReferenceService : IReferenceService
             LevelName = l.LevelName
         });
     }
+
+    public async Task<IEnumerable<CountryDto>> GetCountriesAsync(CancellationToken ct = default)
+    {
+        var items = await _referenceRepo.GetCountriesAsync(ct);
+        return items.Select(c => new CountryDto { CountryId = c.CountryId, CountryName = c.CountryName });
+    }
+
+    public async Task<IEnumerable<LanguageDto>> GetLanguagesAsync(CancellationToken ct = default)
+    {
+        var items = await _referenceRepo.GetLanguagesAsync(ct);
+        return items.Select(l => new LanguageDto { LanguageId = l.LanguageId, LanguageName = l.LanguageName });
+    }
+
+    public async Task<IEnumerable<ThemeDto>> GetThemesAsync(CancellationToken ct = default)
+    {
+        var items = await _referenceRepo.GetThemesAsync(ct);
+        return items.Select(t => new ThemeDto { ThemeId = t.ThemeId, ThemeName = t.ThemeName });
+    }
+
+    public async Task<IEnumerable<RoleDto>> GetRolesAsync(CancellationToken ct = default)
+    {
+        var items = await _referenceRepo.GetRolesAsync(ct);
+        return items.Select(r => new RoleDto { RoleId = r.RoleId, RoleName = r.RoleName });
+    }
 }

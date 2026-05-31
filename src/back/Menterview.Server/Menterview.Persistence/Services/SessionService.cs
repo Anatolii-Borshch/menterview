@@ -12,12 +12,10 @@ namespace Menterview.Persistence.Services;
 public class SessionService : ISessionService
 {
     private readonly ISessionRepository _sessionRepo;
-    private readonly MenterviewDbContext _db;
 
-    public SessionService(ISessionRepository sessionRepo, MenterviewDbContext db)
+    public SessionService(ISessionRepository sessionRepo)
     {
         _sessionRepo = sessionRepo;
-        _db = db;
     }
 
     public async Task<PagedResult<SessionListItemDto>> GetHistoryAsync(
@@ -79,6 +77,7 @@ public class SessionService : ISessionService
             .ToList();
 
         var allAnswers = filtered.SelectMany(s => s.Answers).ToList();
+        var answersWithQuestion = allAnswers.Where(a => a.Question is not null).ToList();
 
         var trend = filtered.Select(s => new SessionTrendPointDto
         {
@@ -89,9 +88,9 @@ public class SessionService : ISessionService
             AnsweredCount = s.AnsweredCount
         });
 
-        // Per-category accuracy: join answers → questions → categories
-        var categoryAccuracy = allAnswers
-            .GroupBy(a => new { a.Question.CategoryId, a.Question.Category.CategoryName })
+        var categoryAccuracy = answersWithQuestion
+            .Where(a => a.Question?.Category is not null)
+            .GroupBy(a => new { a.Question!.CategoryId, a.Question.Category!.CategoryName })
             .Select(g => new CategoryAccuracyDto
             {
                 Category = new CategoryDto { CategoryId = g.Key.CategoryId, CategoryName = g.Key.CategoryName },
@@ -99,8 +98,9 @@ public class SessionService : ISessionService
                 TotalAnswers = g.Count()
             });
 
-        var difficultyAccuracy = allAnswers
-            .GroupBy(a => new { a.Question.DifficultyId, a.Question.Difficulty.DifficultyName })
+        var difficultyAccuracy = answersWithQuestion
+            .Where(a => a.Question?.Difficulty is not null)
+            .GroupBy(a => new { a.Question!.DifficultyId, a.Question.Difficulty!.DifficultyName })
             .Select(g => new DifficultyAccuracyDto
             {
                 Difficulty = new DifficultyDto { DifficultyId = g.Key.DifficultyId, DifficultyName = g.Key.DifficultyName },
@@ -143,7 +143,7 @@ public class SessionService : ISessionService
         return new AnswerBreakdownDto
         {
             AnswerId = a.AnswerId,
-            QuestionText = a.Question.QuestionText,
+            QuestionText = a.Question?.QuestionText ?? string.Empty,
             RephrasedText = a.RephrasedText,
             AnswerText = a.AnswerText,
             AiReply = a.AiReply,
@@ -155,13 +155,13 @@ public class SessionService : ISessionService
             WasWeakTopicReview = a.WasWeakTopicReview,
             Category = new CategoryDto
             {
-                CategoryId = a.Question.Category.CategoryId,
-                CategoryName = a.Question.Category.CategoryName
+                CategoryId = a.Question?.Category?.CategoryId ?? 0,
+                CategoryName = a.Question?.Category?.CategoryName ?? string.Empty
             },
             Difficulty = new DifficultyDto
             {
-                DifficultyId = a.Question.Difficulty.DifficultyId,
-                DifficultyName = a.Question.Difficulty.DifficultyName
+                DifficultyId = a.Question?.Difficulty?.DifficultyId ?? 0,
+                DifficultyName = a.Question?.Difficulty?.DifficultyName ?? string.Empty
             }
         };
     }

@@ -4,8 +4,10 @@ import type {
   AdminUserListItemDto,
   AdminUserDetailsDto,
   AdminQuestionListItemDto,
+  PendingQuestionDetailsDto,
   AssignRoleRequest,
   RejectSuggestionRequest,
+  UpdateSuggestionTagsRequest,
 } from './models/adminModels';
 import type { PagedResult } from './models/questionModels';
 
@@ -28,11 +30,20 @@ const adminApi = {
   getPendingQuestions: () =>
     axiosInstance.get<ApiResponseData<PagedResult<AdminQuestionListItemDto>>>('/api/admin/questions/pending'),
 
+  getPendingQuestion: (suggestionId: number) =>
+    axiosInstance.get<ApiResponseData<PendingQuestionDetailsDto>>(`/api/admin/questions/pending/${suggestionId}`),
+
   approveQuestion: (suggestionId: number) =>
-    axiosInstance.post<ApiResponse>(`/api/admin/questions/${suggestionId}/approve`),
+    axiosInstance.post<ApiResponse>(`/api/admin/questions/pending/${suggestionId}/approve`),
+
+  updatePendingQuestionTags: (suggestionId: number, data: UpdateSuggestionTagsRequest) =>
+    axiosInstance.put<ApiResponse>(`/api/admin/questions/pending/${suggestionId}/tags`, data),
 
   rejectQuestion: (suggestionId: number, data: RejectSuggestionRequest) =>
-    axiosInstance.post<ApiResponse>(`/api/admin/questions/${suggestionId}/reject`, data),
+    axiosInstance.post<ApiResponse>(`/api/admin/questions/pending/${suggestionId}/reject`, data),
+
+  deleteQuestion: (questionId: number) =>
+    axiosInstance.delete<ApiResponse>(`/api/admin/questions/${questionId}`),
 };
 
 export default adminApi;

@@ -83,6 +83,11 @@ public class SessionRepository : ISessionRepository
     {
         return await _db.SessionStories
             .Include(s => s.Answers)
+                .ThenInclude(a => a.Question)
+                    .ThenInclude(q => q.Category)
+            .Include(s => s.Answers)
+                .ThenInclude(a => a.Question)
+                    .ThenInclude(q => q.Difficulty)
             .Include(s => s.Category)
             .Include(s => s.Difficulty)
             .AsNoTracking()

@@ -3,8 +3,6 @@ from app.config import Config
 
 
 class CallbackClient:
-    """HTTP client that calls the API's FinishSession endpoint."""
-
     def finish(self, session_token: str, payload: dict) -> bool:
         url = f"http://{Config.CALLBACK_ADDRESS}/api/sessions/finish"
         headers = {
@@ -19,4 +17,3 @@ class CallbackClient:
         except requests.RequestException as exc:
             print(f"Callback error: {exc}")
             return False
-        return response["message"]["content"].strip()

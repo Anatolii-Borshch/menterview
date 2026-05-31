@@ -11,3 +11,6 @@ class Config:
     DEFAULT_TIMEOUT:   int = int(os.getenv("DEFAULT_TIMEOUT", "3600"))
     PORT_RANGE_START:  int = int(os.getenv("PORT_RANGE_START", "51000"))
     PORT_RANGE_END:    int = int(os.getenv("PORT_RANGE_END", "52000"))
+    SESSION_CONTAINER_PREFIX: str = os.getenv("SESSION_CONTAINER_PREFIX", "ai-worker-session-")
+    CLEANUP_ON_STARTUP: bool = os.getenv("CLEANUP_ON_STARTUP", "true").lower() == "true"
+    CLEANUP_ON_SHUTDOWN: bool = os.getenv("CLEANUP_ON_SHUTDOWN", "true").lower() == "true"

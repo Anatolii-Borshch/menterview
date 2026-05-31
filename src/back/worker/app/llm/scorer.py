@@ -10,7 +10,6 @@ SYSTEM_PROMPT = (
     '{"correctness": <int>, "completeness": <int>, "feedback": "<string>"}'
 )
 
-
 class Scorer:
     def __init__(self, client: LlmClient):
         self._client = client
@@ -21,7 +20,6 @@ class Scorer:
         correct_answer: str,
         user_answer:    str,
     ) -> tuple[int, int, str]:
-        """Returns (correctness, completeness, feedback)."""
         user_prompt = (
             f"Question: {question}\n"
             f"Correct answer: {correct_answer}\n"

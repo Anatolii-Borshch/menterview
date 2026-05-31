@@ -27,6 +27,8 @@ public class WorkerManagerClient : IWorkerManagerClient
 
         foreach (var q in command.Questions)
         {
+            var tagIds = q.Tags?.Select(t => t.TagId) ?? Enumerable.Empty<int>();
+
             request.Questions.Add(new SessionQuestion
             {
                 QuestionId = q.QuestionId,
@@ -35,7 +37,8 @@ public class WorkerManagerClient : IWorkerManagerClient
                 CategoryId = q.Category?.CategoryId ?? 0,
                 DifficultyId = q.Difficulty?.DifficultyId ?? 0,
                 IsWeakTopic = q.IsWeakTopicReview,
-                RephrasedText = q.RephrasedText ?? string.Empty
+                RephrasedText = q.RephrasedText ?? string.Empty,
+                TagIds = { tagIds }
             });
         }
 

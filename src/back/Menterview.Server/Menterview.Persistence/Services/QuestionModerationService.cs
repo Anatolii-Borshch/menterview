@@ -1,4 +1,3 @@
-using Menterview.Application.Contracts;
 using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos;
 using Menterview.Application.Dtos.Admin;
@@ -149,7 +148,6 @@ public class QuestionModerationService : IQuestionModerationService
         if (nq.Status != SuggestionStatus.Pending)
             throw new InvalidOperationException($"Suggestion is already {nq.Status}.");
 
-        // Promote to catalog Question
         var question = new Question
         {
             QuestionText = nq.Question,
@@ -163,7 +161,6 @@ public class QuestionModerationService : IQuestionModerationService
         _db.Questions.Add(question);
         await _db.SaveChangesAsync(ct);
 
-        // Copy tags
         foreach (var tag in nq.Tags)
         {
             _db.QuestionTags.Add(new QuestionTag
@@ -191,6 +188,34 @@ public class QuestionModerationService : IQuestionModerationService
         await _db.SaveChangesAsync(ct);
     }
 
+    public async Task UpdatePendingSuggestionTagsAsync(long suggestionId, IEnumerable<int> tagIds, CancellationToken ct = default)
+    {
+        var nq = await _db.NewQuestions
+            .Include(x => x.Tags)
+            .FirstOrDefaultAsync(x => x.SuggestionId == suggestionId, ct)
+            ?? throw new KeyNotFoundException($"Suggestion {suggestionId} not found.");
+
+        if (nq.Status != SuggestionStatus.Pending)
+            throw new InvalidOperationException($"Suggestion is already {nq.Status}.");
+
+        var tagIdList = tagIds?.Distinct().ToList() ?? [];
+        if (!tagIdList.Any())
+            throw new ArgumentException("At least one tag is required.", nameof(tagIds));
+
+        _db.NewQuestionTags.RemoveRange(nq.Tags);
+
+        foreach (var tagId in tagIdList)
+        {
+            _db.NewQuestionTags.Add(new NewQuestionTag
+            {
+                SuggestionId = nq.SuggestionId,
+                TagId = tagId
+            });
+        }
+
+        await _db.SaveChangesAsync(ct);
+    }
+
     public async Task DeleteQuestionAsync(long questionId, CancellationToken ct = default)
     {
         var question = await _db.Questions
@@ -205,6 +230,10 @@ public class QuestionModerationService : IQuestionModerationService
     public async Task<long> SuggestQuestionAsync(Guid userId, string questionText, string answer,
         int categoryId, int difficultyId, IEnumerable<int> tagIds, CancellationToken ct = default)
     {
+        var tagIdList = tagIds?.Distinct().ToList() ?? [];
+        if (!tagIdList.Any())
+            throw new ArgumentException("At least one tag is required.", nameof(tagIds));
+
         var suggestion = new NewQuestion
         {
             Question = questionText,
@@ -215,7 +244,7 @@ public class QuestionModerationService : IQuestionModerationService
             Status = SuggestionStatus.Pending,
             Type = SuggestionType.New,
             CreatedAt = DateTime.UtcNow,
-            Tags = tagIds.Select(tid => new NewQuestionTag { TagId = tid }).ToList()
+            Tags = tagIdList.Select(tid => new NewQuestionTag { TagId = tid }).ToList()
         };
 
         _db.NewQuestions.Add(suggestion);

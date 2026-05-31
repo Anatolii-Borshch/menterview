@@ -15,11 +15,9 @@ export default function ProfilePage() {
   const [editMode, setEditMode] = useState<EditMode>(null);
   const [saving, setSaving] = useState(false);
 
-  // Reference data for editing
   const [categories, setCategories] = useState<CategoryDto[]>([]);
   const [levels, setLevels] = useState<LevelDto[]>([]);
 
-  // Edit state
   const [nameForm, setNameForm] = useState({ firstName: '', lastName: '' });
   const [selectedCategoryId, setSelectedCategoryId] = useState(0);
   const [selectedLevelId, setSelectedLevelId] = useState<number | undefined>(undefined);
@@ -138,7 +136,6 @@ export default function ProfilePage() {
           Profile
         </h1>
 
-        {/* Identity */}
         <div className="bg-white border border-periwinkle rounded-2xl p-6 mb-4">
           <h2 className="text-sm font-semibold text-navy/40 uppercase tracking-wide mb-2">Account</h2>
 
@@ -181,7 +178,6 @@ export default function ProfilePage() {
           />
         </div>
 
-        {/* Focus */}
         <div className="bg-white border border-periwinkle rounded-2xl p-6 mb-4">
           <h2 className="text-sm font-semibold text-navy/40 uppercase tracking-wide mb-2">Focus</h2>
 

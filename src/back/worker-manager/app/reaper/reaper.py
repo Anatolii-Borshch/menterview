@@ -5,7 +5,6 @@ from app.registry.models import WorkerStatus
 from app.docker.client import DockerManager
 from app.docker.port_allocator import PortAllocator
 
-
 class Reaper:
     def __init__(
         self,

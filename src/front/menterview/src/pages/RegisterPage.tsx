@@ -107,7 +107,6 @@ export const RegisterPage = () => {
             {stepLabel[step]}
           </h1>
           <p className="text-navy/50 mt-2 text-sm">{stepSub[step]}</p>
-          {/* progress dots */}
           <div className="flex items-center justify-center gap-2 mt-4">
             {(['info', 'preferences', 'verify'] as Step[]).map((s, i) => (
               <div

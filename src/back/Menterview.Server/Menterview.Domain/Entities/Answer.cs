@@ -6,11 +6,7 @@
         
         public string AnswerText { get; set; } = null!;
         public string AiReply { get; set; } = null!;
-
-        // Final composite score (0-100): 0.6*Correctness + 0.4*Completeness
         public int Accuracy { get; set; }
-
-        // Component scores stored separately for detailed analytics
         public int? Correctness { get; set; }
         public int? Completeness { get; set; }
 

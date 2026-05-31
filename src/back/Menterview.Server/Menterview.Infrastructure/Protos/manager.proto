@@ -16,6 +16,7 @@ message SessionQuestion {
   int32  difficulty_id  = 5;
   bool   is_weak_topic  = 6;
   string rephrased_text = 7;
+  repeated int32 tag_ids = 8;
 }
 
 message SpawnWorkerRequest {

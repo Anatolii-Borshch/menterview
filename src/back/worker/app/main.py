@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 from app.config import Config
 from app.session.manager import SessionManager
 from app.session.question_list import parse_questions
@@ -12,6 +13,12 @@ from app.callback.retry import RetryCallbackClient
 from app.grpc.server import serve_grpc
 from app.websocket.server import serve_websocket
 from app.websocket.handler import SessionHandler
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 async def main():
     manager   = SessionManager()
@@ -29,8 +36,11 @@ async def main():
         questions=questions,
     )
 
-    print(f"Worker started — session {Config.SESSION_ID}")
-    print(f"Questions loaded: {len(questions)}")
+    logger.info("Worker started for session %s", Config.SESSION_ID)
+    logger.info("Questions loaded: %s", len(questions))
+    logger.info("Worker endpoints: grpc=%s ws=%s", Config.GRPC_PORT, Config.WS_PORT)
+    logger.info("Callback address: %s", Config.CALLBACK_ADDRESS)
+    logger.info("Ollama host/model: %s / %s", Config.OLLAMA_HOST, Config.OLLAMA_MODEL)
 
     await asyncio.gather(
         serve_grpc(manager, port=Config.GRPC_PORT),

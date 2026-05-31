@@ -40,6 +40,8 @@ services:
       - AdminSeed__LastName=${ADMIN_LAST_NAME:-User}
       - Cors__AllowedOrigins__0=http://localhost:5173
       - Google__ClientId=${GOOGLE_CLIENT_ID}
+      - RephraseAi__BaseUrl=http://menterview.ollama:11434
+      - RephraseAi__Model=llama3.2
       - EmailSettings__SmtpServer=smtp.gmail.com
       - EmailSettings__Port=587
       - EmailSettings__TimeoutSeconds=15
@@ -88,6 +90,7 @@ services:
     depends_on:
       - menterview.api
       - menterview.ollama
+    stop_grace_period: 45s
     networks:
       - menterview-network
 
@@ -96,8 +99,16 @@ services:
       context: ./src/back/worker
       dockerfile: Dockerfile
     image: menterview/ai-worker:latest
-    profiles:
-      - build-only
+    environment:
+      - SESSION_ID=0
+      - SESSION_TOKEN=bootstrap-worker-token
+      - CALLBACK_ADDRESS=menterview.api:8080
+      - GRPC_PORT=50051
+      - WS_PORT=8765
+      - SESSION_TIMEOUT=3600
+      - OLLAMA_HOST=http://menterview.ollama:11434
+      - OLLAMA_MODEL=llama3.2
+      - QUESTIONS_JSON=[]
     networks:
       - menterview-network
 
@@ -129,4 +140,5 @@ volumes:
 
 networks:
   menterview-network:
+    name: menterview-network
     driver: bridge

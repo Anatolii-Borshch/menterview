@@ -1,7 +1,5 @@
-using System.Security.Claims;
 using Menterview.Api.Models.General;
 using Menterview.Api.Models.Question;
-using Menterview.Application.Contracts;
 using Menterview.Application.Contracts.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +12,10 @@ namespace Menterview.Api.Controllers;
 public class QuestionsController : ControllerBase
 {
     private readonly IQuestionQueryService _questionQueryService;
-    private readonly IQuestionModerationService _moderationService;
 
-    public QuestionsController(IQuestionQueryService questionQueryService,
-        IQuestionModerationService moderationService)
+    public QuestionsController(IQuestionQueryService questionQueryService)
     {
         _questionQueryService = questionQueryService;
-        _moderationService = moderationService;
     }
 
     [HttpGet]
@@ -78,20 +73,4 @@ public class QuestionsController : ControllerBase
         }));
     }
 
-    [HttpPost("suggest")]
-    [Authorize]
-    public async Task<ActionResult<ApiResponse<long>>> SuggestQuestion(
-        [FromBody] CreateQuestionSuggestionRequest request, CancellationToken ct)
-    {
-        var userId = Guid.Parse(
-            User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? User.FindFirst("sub")?.Value
-            ?? throw new UnauthorizedAccessException("User ID not found."));
-
-        var suggestionId = await _moderationService.SuggestQuestionAsync(
-            userId, request.QuestionText, request.Answer,
-            request.CategoryId, request.DifficultyId, request.TagIds, ct);
-
-        return Ok(ApiResponse<long>.Success(suggestionId));
-    }
 }

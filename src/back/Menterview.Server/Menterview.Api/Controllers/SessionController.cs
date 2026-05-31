@@ -31,7 +31,6 @@ public class SessionController : ControllerBase
         return Guid.Parse(raw);
     }
 
-    // GET api/sessions
     [HttpGet]
     public async Task<ActionResult<ApiResponse<PagedResult<SessionListItemDto>>>> GetSessionHistory(
         [FromQuery] GetSessionsQuery query, CancellationToken ct)
@@ -50,7 +49,6 @@ public class SessionController : ControllerBase
         return Ok(ApiResponse<PagedResult<SessionListItemDto>>.Success(paged));
     }
 
-    // GET api/sessions/{sessionId:long}
     [HttpGet("{sessionId:long}")]
     public async Task<ActionResult<ApiResponse<SessionDetailsDto>>> GetSessionDetails(
         long sessionId, CancellationToken ct)
@@ -60,7 +58,6 @@ public class SessionController : ControllerBase
         return Ok(ApiResponse<SessionDetailsDto>.Success(result));
     }
 
-    // GET api/sessions/stats
     [HttpGet("stats")]
     public async Task<ActionResult<ApiResponse<UserSessionStatsDto>>> GetSessionStats(
         [FromQuery] GetSessionStatsQuery query, CancellationToken ct)
@@ -70,14 +67,12 @@ public class SessionController : ControllerBase
         return Ok(ApiResponse<UserSessionStatsDto>.Success(result));
     }
 
-    // GET api/sessions/{sessionId:long}/export
     [HttpGet("{sessionId:long}/export")]
     public IActionResult ExportSessionPdf(long sessionId)
     {
         return StatusCode(501, "PDF export not yet implemented.");
     }
 
-    // POST api/sessions/start
     [HttpPost("start")]
     public async Task<ActionResult<ApiResponse<SessionStartedDto>>> StartSession(
         StartSessionRequest request, CancellationToken ct)
@@ -98,7 +93,6 @@ public class SessionController : ControllerBase
         return Ok(ApiResponse<SessionStartedDto>.Success(result));
     }
 
-    // POST api/sessions/finish — called by AI worker
     [HttpPost("finish")]
     [Authorize(Policy = "AiWorkerOnly")]
     public async Task<ActionResult<ApiResponse>> FinishSession(
@@ -125,7 +119,6 @@ public class SessionController : ControllerBase
         return Ok(ApiResponse.Success());
     }
 
-    // GET api/sessions/{sessionId:long}/answers
     [HttpGet("{sessionId:long}/answers")]
     public async Task<ActionResult<ApiResponse<IEnumerable<AnswerBreakdownDto>>>> GetAnswerAnalysis(
         long sessionId, CancellationToken ct)

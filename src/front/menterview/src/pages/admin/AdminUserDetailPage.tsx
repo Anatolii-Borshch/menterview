@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import adminApi from '../../api/adminApi';
+import AdminPanelLayout from '../../components/admin/AdminPanelLayout';
+import { confirmToast } from '../../components/common/confirmToast';
 import type { AdminUserDetailsDto } from '../../api/models/adminModels';
 
 interface RoleOption { roleId: number; roleName: string }
@@ -56,7 +58,12 @@ export default function AdminUserDetailPage() {
 
   const handleDelete = async () => {
     if (!userId) return;
-    if (!confirm(`Soft-delete ${user?.email}? They can still be restored.`)) return;
+    const confirmed = await confirmToast(`Soft-delete ${user?.email}? They can still be restored.`, {
+      title: 'Confirm user deletion',
+      confirmText: 'Delete user',
+      danger: true,
+    });
+    if (!confirmed) return;
     setDeletingUser(true);
     try {
       const res = await adminApi.softDeleteUser(userId);
@@ -93,11 +100,10 @@ export default function AdminUserDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-snow">
-      <div className="max-w-xl mx-auto px-6 py-10">
-        <Link to="/admin/users" className="text-sm text-navy/50 hover:text-navy mb-6 inline-block">
-          ← Users
-        </Link>
+    <AdminPanelLayout
+      title="User details"
+      subtitle="Inspect profile metadata, change role, and apply delete actions."
+    >
 
         <div className="bg-white border border-periwinkle rounded-2xl p-8 mb-4">
           <h1 className="text-2xl text-navy mb-1" style={{ fontFamily: 'DM Serif Display, serif' }}>
@@ -122,7 +128,6 @@ export default function AdminUserDetailPage() {
           </div>
         </div>
 
-        {/* Role assignment */}
         <div className="bg-white border border-periwinkle rounded-2xl p-6 mb-4">
           <p className="text-sm font-medium text-navy mb-3">Assign role</p>
           <div className="flex gap-2 mb-3">
@@ -149,7 +154,6 @@ export default function AdminUserDetailPage() {
           </button>
         </div>
 
-        {/* Danger zone */}
         {!user.isDeleted && (
           <div className="bg-white border border-red-100 rounded-2xl p-6">
             <p className="text-sm font-medium text-red-600 mb-2">Danger zone</p>
@@ -163,7 +167,6 @@ export default function AdminUserDetailPage() {
             </button>
           </div>
         )}
-      </div>
-    </div>
+    </AdminPanelLayout>
   );
 }

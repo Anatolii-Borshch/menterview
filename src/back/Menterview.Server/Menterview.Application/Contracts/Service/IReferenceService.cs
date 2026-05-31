@@ -8,4 +8,8 @@ public interface IReferenceService
     Task<IEnumerable<DifficultyDto>> GetDifficultiesAsync(CancellationToken ct = default);
     Task<IEnumerable<LevelDto>> GetLevelsAsync(CancellationToken ct = default);
     Task<IEnumerable<TagDto>> GetTagsAsync(CancellationToken ct = default);
+    Task<IEnumerable<CountryDto>> GetCountriesAsync(CancellationToken ct = default);
+    Task<IEnumerable<LanguageDto>> GetLanguagesAsync(CancellationToken ct = default);
+    Task<IEnumerable<ThemeDto>> GetThemesAsync(CancellationToken ct = default);
+    Task<IEnumerable<RoleDto>> GetRolesAsync(CancellationToken ct = default);
 }

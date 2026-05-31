@@ -1,4 +1,3 @@
-using Menterview.Application.Contracts;
 using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.Sub;
 using Menterview.Domain.Entities;
@@ -16,7 +15,6 @@ public class AdminReferenceService : IAdminReferenceService
         _db = db;
     }
 
-    // ── Categories ──────────────────────────────────────────────────────────
 
     public async Task<CategoryDto> CreateCategoryAsync(string name, CancellationToken ct = default)
     {
@@ -42,8 +40,6 @@ public class AdminReferenceService : IAdminReferenceService
         await _db.SaveChangesAsync(ct);
     }
 
-    // ── Tags ────────────────────────────────────────────────────────────────
-
     public async Task<TagDto> CreateTagAsync(string name, CancellationToken ct = default)
     {
         var tag = new Tag { TagName = name };
@@ -68,8 +64,6 @@ public class AdminReferenceService : IAdminReferenceService
         await _db.SaveChangesAsync(ct);
     }
 
-    // ── Difficulties ─────────────────────────────────────────────────────────
-
     public async Task<DifficultyDto> CreateDifficultyAsync(string name, CancellationToken ct = default)
     {
         var difficulty = new Difficulty { DifficultyName = name };
@@ -91,6 +85,126 @@ public class AdminReferenceService : IAdminReferenceService
         var difficulty = await _db.Difficulties.FindAsync([difficultyId], ct)
             ?? throw new KeyNotFoundException($"Difficulty {difficultyId} not found.");
         _db.Difficulties.Remove(difficulty);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task<LevelDto> CreateLevelAsync(string name, CancellationToken ct = default)
+    {
+        var level = new Level { LevelName = name };
+        _db.Levels.Add(level);
+        await _db.SaveChangesAsync(ct);
+        return new LevelDto { LevelId = level.LevelId, LevelName = level.LevelName };
+    }
+
+    public async Task UpdateLevelAsync(int levelId, string name, CancellationToken ct = default)
+    {
+        var level = await _db.Levels.FindAsync([levelId], ct)
+            ?? throw new KeyNotFoundException($"Level {levelId} not found.");
+        level.LevelName = name;
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteLevelAsync(int levelId, CancellationToken ct = default)
+    {
+        var level = await _db.Levels.FindAsync([levelId], ct)
+            ?? throw new KeyNotFoundException($"Level {levelId} not found.");
+        _db.Levels.Remove(level);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task<CountryDto> CreateCountryAsync(string name, CancellationToken ct = default)
+    {
+        var country = new Country { CountryName = name };
+        _db.Countries.Add(country);
+        await _db.SaveChangesAsync(ct);
+        return new CountryDto { CountryId = country.CountryId, CountryName = country.CountryName };
+    }
+
+    public async Task UpdateCountryAsync(int countryId, string name, CancellationToken ct = default)
+    {
+        var country = await _db.Countries.FindAsync([countryId], ct)
+            ?? throw new KeyNotFoundException($"Country {countryId} not found.");
+        country.CountryName = name;
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteCountryAsync(int countryId, CancellationToken ct = default)
+    {
+        var country = await _db.Countries.FindAsync([countryId], ct)
+            ?? throw new KeyNotFoundException($"Country {countryId} not found.");
+        _db.Countries.Remove(country);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task<LanguageDto> CreateLanguageAsync(string name, CancellationToken ct = default)
+    {
+        var language = new Language { LanguageName = name };
+        _db.Languages.Add(language);
+        await _db.SaveChangesAsync(ct);
+        return new LanguageDto { LanguageId = language.LanguageId, LanguageName = language.LanguageName };
+    }
+
+    public async Task UpdateLanguageAsync(int languageId, string name, CancellationToken ct = default)
+    {
+        var language = await _db.Languages.FindAsync([languageId], ct)
+            ?? throw new KeyNotFoundException($"Language {languageId} not found.");
+        language.LanguageName = name;
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteLanguageAsync(int languageId, CancellationToken ct = default)
+    {
+        var language = await _db.Languages.FindAsync([languageId], ct)
+            ?? throw new KeyNotFoundException($"Language {languageId} not found.");
+        _db.Languages.Remove(language);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task<RoleDto> CreateRoleAsync(string name, CancellationToken ct = default)
+    {
+        var role = new Role { RoleName = name };
+        _db.Roles.Add(role);
+        await _db.SaveChangesAsync(ct);
+        return new RoleDto { RoleId = role.RoleId, RoleName = role.RoleName };
+    }
+
+    public async Task UpdateRoleAsync(int roleId, string name, CancellationToken ct = default)
+    {
+        var role = await _db.Roles.FindAsync([roleId], ct)
+            ?? throw new KeyNotFoundException($"Role {roleId} not found.");
+        role.RoleName = name;
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteRoleAsync(int roleId, CancellationToken ct = default)
+    {
+        var role = await _db.Roles.FindAsync([roleId], ct)
+            ?? throw new KeyNotFoundException($"Role {roleId} not found.");
+        _db.Roles.Remove(role);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task<ThemeDto> CreateThemeAsync(string name, CancellationToken ct = default)
+    {
+        var theme = new Theme { ThemeName = name };
+        _db.Themes.Add(theme);
+        await _db.SaveChangesAsync(ct);
+        return new ThemeDto { ThemeId = theme.ThemeId, ThemeName = theme.ThemeName };
+    }
+
+    public async Task UpdateThemeAsync(int themeId, string name, CancellationToken ct = default)
+    {
+        var theme = await _db.Themes.FindAsync([themeId], ct)
+            ?? throw new KeyNotFoundException($"Theme {themeId} not found.");
+        theme.ThemeName = name;
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteThemeAsync(int themeId, CancellationToken ct = default)
+    {
+        var theme = await _db.Themes.FindAsync([themeId], ct)
+            ?? throw new KeyNotFoundException($"Theme {themeId} not found.");
+        _db.Themes.Remove(theme);
         await _db.SaveChangesAsync(ct);
     }
 }

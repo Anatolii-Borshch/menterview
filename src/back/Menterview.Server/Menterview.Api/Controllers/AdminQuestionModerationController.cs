@@ -1,7 +1,6 @@
 using Menterview.Api.Models.Admin;
 using Menterview.Api.Models.General;
 using Menterview.Api.Models.Question;
-using Menterview.Application.Contracts;
 using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.Admin;
 using Menterview.Application.Dtos.Question;
@@ -76,6 +75,14 @@ public class AdminQuestionModerationController : ControllerBase
         long suggestionId, [FromBody] RejectSuggestionRequest request, CancellationToken ct)
     {
         await _moderationService.RejectSuggestionAsync(suggestionId, request.RejectionReason, ct);
+        return Ok(ApiResponse.Success());
+    }
+
+    [HttpPut("pending/{suggestionId:long}/tags")]
+    public async Task<ActionResult<ApiResponse>> UpdatePendingSuggestionTags(
+        long suggestionId, [FromBody] UpdateSuggestionTagsRequest request, CancellationToken ct)
+    {
+        await _moderationService.UpdatePendingSuggestionTagsAsync(suggestionId, request.TagIds, ct);
         return Ok(ApiResponse.Success());
     }
 

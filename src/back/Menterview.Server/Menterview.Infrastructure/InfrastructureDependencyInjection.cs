@@ -3,6 +3,7 @@ using Menterview.Application.Contracts;
 using Menterview.Application.Contracts.Auth;
 using Menterview.Application.Contracts.Client;
 using Menterview.Application.Contracts.Email;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Models.Application;
 using Menterview.Application.Models.Email;
 using Menterview.Infrastructure.Services;
@@ -21,6 +22,8 @@ public static class InfrastructureDependencyInjection
         services.Configure<FrontendSettings>(configuration.GetSection("Frontend"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.AddScoped<IEmailService, EmailService>();
+        services.AddHttpClient<IQuestionRephraseService, QuestionRephraseService>();
+        services.AddHttpClient<IQuestionAnswerCheckService, QuestionAnswerCheckService>();
 
         var workerManagerAddress = configuration["WorkerManager:Address"] ?? "http://worker-manager:6000";
         services.AddGrpcClient<ManagerService.ManagerServiceClient>(o =>

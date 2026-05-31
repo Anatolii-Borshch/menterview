@@ -79,7 +79,6 @@ public class QuestionSelectionService : IQuestionSelectionService
             }).ToList();
         }
 
-        // Fill remaining slots with regular catalog questions
         var needed = count - weakQuestions.Count;
         var excludeIds = weakQuestions.Select(q => q.QuestionId).ToHashSet();
 
@@ -98,7 +97,7 @@ public class QuestionSelectionService : IQuestionSelectionService
             regularQuery = regularQuery.Where(q => q.QuestionTags.Any(qt => tagIdList.Contains(qt.TagId)));
 
         var regularQuestions = await regularQuery
-            .OrderBy(q => Guid.NewGuid()) // random order
+            .OrderBy(q => Guid.NewGuid())
             .Take(needed)
             .ToListAsync(ct);
 

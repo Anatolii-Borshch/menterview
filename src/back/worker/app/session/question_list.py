@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 @dataclass
 class SessionQuestion:
@@ -9,6 +9,7 @@ class SessionQuestion:
     difficulty_id:  int
     is_weak_topic:  bool
     rephrased_text: str
+    tag_ids:        list[int] = field(default_factory=list)
 
 def parse_questions(raw: list[dict]) -> list[SessionQuestion]:
     return [
@@ -20,6 +21,7 @@ def parse_questions(raw: list[dict]) -> list[SessionQuestion]:
             difficulty_id=q["difficulty_id"],
             is_weak_topic=q.get("is_weak_topic", False),
             rephrased_text=q.get("rephrased_text", ""),
+            tag_ids=list(q.get("tag_ids", [])),
         )
         for q in raw
     ]

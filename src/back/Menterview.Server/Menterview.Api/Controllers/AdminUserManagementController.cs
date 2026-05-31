@@ -1,6 +1,5 @@
 using Menterview.Api.Models.General;
 using Menterview.Api.Models.User;
-using Menterview.Application.Contracts;
 using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.Admin;
 using Microsoft.AspNetCore.Authorization;
