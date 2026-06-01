@@ -1,0 +1,15 @@
+export const FORGOT_PASSWORD_TEXT = {
+  CHECK_EMAIL_TITLE: 'Check your email',
+  CHECK_EMAIL_MESSAGE_PREFIX: 'If an account with',
+  CHECK_EMAIL_MESSAGE_SUFFIX: "exists, we've sent a password reset link.",
+  BACK_TO_SIGN_IN: 'Back to sign in',
+  PAGE_TITLE: 'Reset your password',
+  PAGE_SUBTITLE: "Enter your email and we'll send you reset instructions.",
+  EMAIL_LABEL: 'Email address',
+  EMAIL_PLACEHOLDER: 'you@example.com',
+  SEND_LINK: 'Send reset link',
+  SENDING: 'Sending…',
+  REMEMBERED: 'Remembered it?',
+  SIGN_IN: 'Sign in',
+  FALLBACK_ERROR: 'Something went wrong. Please try again.',
+} as const;
