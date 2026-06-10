@@ -1,0 +1,30 @@
+export const SUGGEST_QUESTION_TEXT = {
+  TITLE: 'Suggest a question',
+  DESCRIPTION: 'Your suggestion will be reviewed by an admin before being published.',
+  QUESTION_LABEL: 'Question',
+  QUESTION_PLACEHOLDER: 'What is the difference between…',
+  ANSWER_LABEL: 'Expected answer',
+  ANSWER_PLACEHOLDER: 'The answer should explain…',
+  CATEGORY_LABEL: 'Category',
+  DIFFICULTY_LABEL: 'Difficulty',
+  TAGS_LABEL: 'Tags (required)',
+  TAGS_HINT: 'Select at least one tag.',
+  SELECT_OPTION: 'Select…',
+  LOADING_TAGS: 'Loading tags...',
+  NO_TAGS_AVAILABLE: 'No tags are available yet.',
+  NO_TAGS_FALLBACK: 'No tags are available.',
+  TAGS_LOAD_FAILED: 'Failed to load tags.',
+  RETRY_LOADING_TAGS: 'Retry loading tags',
+  CANCEL: 'Cancel',
+  SUBMIT: 'Submit for review',
+  SUBMITTING: 'Submitting…',
+  SELECT_CATEGORY_AND_DIFFICULTY: 'Please select a category and difficulty.',
+  SELECT_TAG: 'Please select at least one tag.',
+  SUBMIT_SUCCESS: 'Question submitted for review!',
+  SUBMIT_FAILED: 'Failed to submit suggestion.',
+  REF_DATA_PARTIAL_FAIL: 'Some reference data failed to load.',
+} as const;
+
+export const SUGGEST_QUESTION_CONSTRAINTS = {
+  MIN_TEXT_LENGTH: 10,
+} as const;

@@ -1,4 +1,5 @@
-﻿using Menterview.Application.Contracts.Auth;
+﻿using System.Text;
+using Menterview.Application.Contracts.Auth;
 using Menterview.Application.Contracts.Email;
 using Menterview.Application.Contracts.Repository;
 using Menterview.Application.Contracts.Security;
@@ -9,6 +10,7 @@ using Menterview.Application.Models.Email;
 using Menterview.Application.Models.Security;
 using Menterview.Identity.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace Menterview.Identity.Services.Auth;
 
@@ -20,6 +22,7 @@ public class AuthService : IAuthService
     private readonly IEmailService _emailService;
     private readonly IJwtTokenService _jwtService;
     private readonly IRefreshTokenRepository _refreshTokenRepo;
+    private readonly FrontendSettings _frontendSettings;
     private readonly UserManager<AppIdentityUser> _userManager;
     private readonly IUserRepository _userRepo;
 
@@ -28,13 +31,15 @@ public class AuthService : IAuthService
         IRefreshTokenRepository refreshTokenRepo,
         IJwtTokenService jwtService,
         IEmailService emailService,
-        UserManager<AppIdentityUser> userManager)
+        UserManager<AppIdentityUser> userManager,
+        IOptions<FrontendSettings> frontendSettings)
     {
         _userRepo = userRepo;
         _refreshTokenRepo = refreshTokenRepo;
         _jwtService = jwtService;
         _emailService = emailService;
         _userManager = userManager;
+        _frontendSettings = frontendSettings.Value;
     }
 
     public async Task RegisterAsync(RegisterRequest request, CancellationToken ct = default)
@@ -71,6 +76,9 @@ public class AuthService : IAuthService
         var user = await _userRepo.GetByEmailAsync(request.Email, ct)
                    ?? throw new UnauthorizedAccessException("Invalid credentials.");
 
+        if (user.IsDeleted)
+            throw new UnauthorizedAccessException("User does not exist.");
+
         var identityUser = await _userManager.FindByIdAsync(user.UserId.ToString())
                            ?? throw new UnauthorizedAccessException("Invalid credentials.");
 
@@ -89,16 +97,20 @@ public class AuthService : IAuthService
         var existing = await _userRepo.GetByEmailAsync(googleUser.Email, ct);
 
         if (existing is not null)
+        {
+            if (existing.IsDeleted)
+                throw new UnauthorizedAccessException("User does not exist.");
             return await IssueTokensAsync(existing, ct);
+        }
 
         var user = await _userRepo.CreateAsync(new CreateUserRequest(
-            googleUser.Email,
-            null,
-            googleUser.FirstName ?? "User",
-            googleUser.LastName ?? "",
-            defaultCategoryId,
-            "Google",
-            googleUser.Sub
+            Email: googleUser.Email,
+            Password: null,
+            FirstName: googleUser.FirstName ?? "User",
+            LastName: googleUser.LastName ?? "",
+            CategoryId: defaultCategoryId,
+            ExternalProvider: "Google",
+            ExternalId: googleUser.Sub
         ), ct);
 
         return await IssueTokensAsync(user, ct);
@@ -125,7 +137,8 @@ public class AuthService : IAuthService
             pending.Request.Password,
             pending.Request.FirstName,
             pending.Request.LastName,
-            pending.Request.CategoryId
+            pending.Request.CategoryId,
+            pending.Request.LevelId
         ), ct);
         
         var identityUser = await _userManager.FindByEmailAsync(request.Email)
@@ -144,16 +157,43 @@ public class AuthService : IAuthService
         await _refreshTokenRepo.SaveAsync(token, ct);
     }
 
+    public async Task ForgotPasswordAsync(ForgotPasswordRequest request, CancellationToken ct = default)
+    {
+        var identityUser = await _userManager.FindByEmailAsync(request.Email);
+        if (identityUser is null) return;
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(identityUser);
+        var resetLink = BuildPasswordResetLink(request.Email, EncodeResetToken(token));
+
+        await _emailService.SendEmailAsync(new EmailMessage
+        {
+            To = request.Email,
+            Subject = "Reset your Menterview password",
+            Body = BuildPasswordResetEmail(resetLink),
+            IsBodyHtml = false
+        });
+    }
+
+    public async Task ResetPasswordAsync(ResetPasswordRequest request, CancellationToken ct = default)
+    {
+        var identityUser = await _userManager.FindByEmailAsync(request.Email)
+                           ?? throw new InvalidOperationException("Invalid reset request.");
+
+        var result = await _userManager.ResetPasswordAsync(identityUser, DecodeResetToken(request.Token), request.NewPassword);
+        if (!result.Succeeded)
+            throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
+    }
+
     public async Task<AuthResponse> RefreshAsync(RefreshTokenRequest request, CancellationToken ct = default)
     {
         var refreshToken = await _refreshTokenRepo.GetActiveByTokenAsync(request.RefreshToken, ct)
                            ?? throw new UnauthorizedAccessException("Invalid or expired refresh token.");
 
-        var identityUser = await _userManager.FindByIdAsync(refreshToken.IdentityUserId)
-                           ?? throw new UnauthorizedAccessException("User not found.");
-
         var user = await _userRepo.GetByIdAsync(Guid.Parse(refreshToken.IdentityUserId))
                    ?? throw new UnauthorizedAccessException("User not found.");
+
+        if (user.IsDeleted)
+            throw new UnauthorizedAccessException("User does not exist.");
 
         refreshToken.RevokedAt = DateTime.UtcNow;
         await _refreshTokenRepo.SaveAsync(refreshToken, ct);
@@ -200,6 +240,67 @@ public class AuthService : IAuthService
                 <h1 style="letter-spacing: 8px; font-size: 48px; color: #4F46E5;">{code}</h1>
                 <p>This code expires in <strong>10 minutes</strong>.</p>
                 """;
+    }
+
+    private string BuildPasswordResetLink(string email, string token)
+    {
+        var baseUrl = string.IsNullOrWhiteSpace(_frontendSettings.BaseUrl)
+            ? "http://localhost:5173"
+            : _frontendSettings.BaseUrl.TrimEnd('/');
+
+        var encodedEmail = Uri.EscapeDataString(email);
+        var encodedToken = Uri.EscapeDataString(token);
+
+        return $"{baseUrl}/reset-password?email={encodedEmail}&token={encodedToken}";
+    }
+
+    private static string BuildPasswordResetEmail(string resetLink)
+    {
+        return $"""
+                Reset your Menterview password
+
+                Open this link to reset your password. It expires in 1 hour.
+
+                {resetLink}
+
+                If you did not request a password reset, you can ignore this email.
+                """;
+    }
+
+    private static string EncodeResetToken(string token)
+    {
+        var bytes = Encoding.UTF8.GetBytes(token);
+        return Convert.ToBase64String(bytes)
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+    }
+
+    private static string DecodeResetToken(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return token;
+
+        try
+        {
+            var normalized = token
+                .Replace('-', '+')
+                .Replace('_', '/');
+
+            normalized = (normalized.Length % 4) switch
+            {
+                2 => normalized + "==",
+                3 => normalized + "=",
+                _ => normalized
+            };
+
+            var bytes = Convert.FromBase64String(normalized);
+            return Encoding.UTF8.GetString(bytes);
+        }
+        catch (FormatException)
+        {
+            return token;
+        }
     }
     
     private static void ValidatePassword(string password)

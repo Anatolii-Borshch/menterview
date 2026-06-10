@@ -13,6 +13,14 @@ namespace Menterview.Persistence.EntityConfigurations
             builder.HasOne(x => x.BusinessUser)
                 .WithMany(x => x.Sessions)
                 .HasForeignKey(x => x.UserId);
+
+            builder.HasOne(x => x.Category)
+                .WithMany()
+                .HasForeignKey(x => x.CategoryId);
+
+            builder.HasOne(x => x.Difficulty)
+                .WithMany()
+                .HasForeignKey(x => x.DifficultyId);
         }
     }
 }

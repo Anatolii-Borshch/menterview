@@ -16,9 +16,12 @@ namespace Menterview.Persistence.DbContext
         public DbSet<NewQuestionTag> NewQuestionTags { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<QuestionTag> QuestionTags { get; set; }
+        public DbSet<Level> Levels { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<BusinessUser> Users { get; set; }
         public DbSet<SessionStory> SessionStories { get; set; }
+        public DbSet<SessionFollowUpQuestion> SessionFollowUpQuestions { get; set; }
+        public DbSet<WeakTopic> WeakTopics { get; set; }
         public DbSet<Setting> Settings { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Country> Countries { get; set; }
@@ -34,7 +37,20 @@ namespace Menterview.Persistence.DbContext
             builder.ApplyConfigurationsFromAssembly(typeof(MenterviewDbContext).Assembly);
             
             builder.Entity<Category>().HasData(
-                new Category { CategoryId = 1, CategoryName = "Java" }
+                new Category { CategoryId = 1, CategoryName = "Java" },
+                new Category { CategoryId = 2, CategoryName = ".NET" }
+            );
+
+            builder.Entity<Level>().HasData(
+                new Level { LevelId = 1, LevelName = "Junior" },
+                new Level { LevelId = 2, LevelName = "Mid" },
+                new Level { LevelId = 3, LevelName = "Senior" }
+            );
+
+            builder.Entity<Difficulty>().HasData(
+                new Difficulty { DifficultyId = 1, DifficultyName = "Easy" },
+                new Difficulty { DifficultyId = 2, DifficultyName = "Medium" },
+                new Difficulty { DifficultyId = 3, DifficultyName = "Hard" }
             );
 
             builder.Entity<Role>().HasData(

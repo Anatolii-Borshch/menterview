@@ -1,5 +1,7 @@
 using Menterview.Api.Models.General;
 using Menterview.Api.Models.Stats;
+using Menterview.Application.Contracts;
+using Menterview.Application.Contracts.Service;
 using Menterview.Application.Dtos.Stats;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,43 +10,44 @@ namespace Menterview.Api.Controllers;
 
 [ApiController]
 [Route("api/admin/stats")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Administrator")]
 public class AdminStatisticsController : ControllerBase
 {
-    public AdminStatisticsController() { }
+    private readonly IAdminStatsService _statsService;
 
-    // GET api/admin/stats
-    // Global system overview
-    [HttpGet]
-    public async Task<ActionResult<ApiResponse<SystemStatsDto>>> GetSystemStats()
+    public AdminStatisticsController(IAdminStatsService statsService)
     {
-        throw new NotImplementedException();
+        _statsService = statsService;
     }
 
-    // GET api/admin/stats/users
-    // User growth and activity trends
+    [HttpGet]
+    public async Task<ActionResult<ApiResponse<SystemStatsDto>>> GetSystemStats(CancellationToken ct)
+    {
+        var result = await _statsService.GetSystemStatsAsync(ct);
+        return Ok(ApiResponse<SystemStatsDto>.Success(result));
+    }
+
     [HttpGet("users")]
     public async Task<ActionResult<ApiResponse<UserStatsDto>>> GetUserStats(
-        [FromQuery] StatsRangeQuery query)
+        [FromQuery] StatsRangeQuery query, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var result = await _statsService.GetUserStatsAsync(query.From, query.To, query.Granularity, ct);
+        return Ok(ApiResponse<UserStatsDto>.Success(result));
     }
 
-    // GET api/admin/stats/questions
-    // Question usage and moderation stats
     [HttpGet("questions")]
     public async Task<ActionResult<ApiResponse<QuestionStatsDto>>> GetQuestionStats(
-        [FromQuery] StatsRangeQuery query)
+        [FromQuery] StatsRangeQuery query, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var result = await _statsService.GetQuestionStatsAsync(query.From, query.To, query.Granularity, ct);
+        return Ok(ApiResponse<QuestionStatsDto>.Success(result));
     }
 
-    // GET api/admin/stats/sessions
-    // Session activity and accuracy trends across all users
     [HttpGet("sessions")]
     public async Task<ActionResult<ApiResponse<GlobalSessionStatsDto>>> GetSessionStats(
-        [FromQuery] StatsRangeQuery query)
+        [FromQuery] StatsRangeQuery query, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var result = await _statsService.GetSessionStatsAsync(query.From, query.To, query.Granularity, ct);
+        return Ok(ApiResponse<GlobalSessionStatsDto>.Success(result));
     }
 }

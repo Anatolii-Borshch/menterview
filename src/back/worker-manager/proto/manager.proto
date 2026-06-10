@@ -1,0 +1,53 @@
+syntax = "proto3";
+package manager;
+option go_package = "./generated";
+
+service ManagerService {
+  rpc SpawnWorker(SpawnWorkerRequest)         returns (SpawnWorkerResponse);
+  rpc TerminateWorker(TerminateWorkerRequest) returns (TerminateWorkerResponse);
+  rpc GetWorkerStatus(GetWorkerStatusRequest) returns (GetWorkerStatusResponse);
+}
+
+message SessionQuestion {
+  int64  question_id    = 1;
+  string question_text  = 2;
+  string answer         = 3;
+  int32  category_id    = 4;
+  int32  difficulty_id  = 5;
+  bool   is_weak_topic  = 6;
+  string rephrased_text = 7;
+  repeated int32 tag_ids = 8;
+}
+
+message SpawnWorkerRequest {
+  int64                    session_id       = 1;
+  string                   session_token    = 2;
+  string                   callback_address = 3;
+  repeated SessionQuestion questions        = 4;
+  int32                    timeout_seconds  = 5;
+}
+
+message SpawnWorkerResponse {
+  bool   success          = 1;
+  string worker_grpc_host = 2;
+  string worker_ws_host   = 3;
+  string container_id     = 4;
+  string error_message    = 5;
+}
+
+message TerminateWorkerRequest {
+  int64 session_id = 1;
+}
+
+message TerminateWorkerResponse {
+  bool success = 1;
+}
+
+message GetWorkerStatusRequest {
+  int64 session_id = 1;
+}
+
+message GetWorkerStatusResponse {
+  string status       = 1;
+  string container_id = 2;
+}

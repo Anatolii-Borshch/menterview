@@ -10,7 +10,13 @@
 
         public int CategoryId { get; set; }
         public Category Category { get; set; } = null!;
-        
+
+        public int DifficultyId { get; set; }
+        public Difficulty Difficulty { get; set; } = null!;
+
+        public int? LevelId { get; set; }
+        public Level? Level { get; set; }
+
         public int RoleId { get; set; }
         public Role Role { get; set; } = null!;
 

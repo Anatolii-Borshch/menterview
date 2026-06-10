@@ -1,4 +1,6 @@
-﻿namespace Menterview.Domain.Entities
+﻿using Menterview.Domain.Enums;
+
+namespace Menterview.Domain.Entities
 {
     public class NewQuestion
     {
@@ -6,6 +8,11 @@
         
         public string Question { get; set; } = null!;
         public string Answer { get; set; } = null!;
+
+        public SuggestionStatus Status { get; set; } = SuggestionStatus.Pending;
+        public SuggestionType Type { get; set; } = SuggestionType.New;
+        public string? RejectionReason { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public Guid? UserId { get; set; }
         public BusinessUser? User { get; set; }
