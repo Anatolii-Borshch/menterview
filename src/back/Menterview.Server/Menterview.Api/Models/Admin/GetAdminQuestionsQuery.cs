@@ -1,0 +1,12 @@
+namespace Menterview.Api.Models.Admin;
+
+public class GetAdminQuestionsQuery
+{
+    public int Page { get; set; } = 1;
+    public int PageSize { get; set; } = 20;
+    public int? CategoryId { get; set; }
+    public int? DifficultyId { get; set; }
+    public IEnumerable<int> TagIds { get; set; } = [];
+    public string? SearchTerm { get; set; }
+    public bool IncludeDeleted { get; set; } = false;
+}

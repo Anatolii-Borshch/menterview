@@ -1,0 +1,36 @@
+syntax = "proto3";
+package callback;
+
+service CallbackService {
+  rpc FinishSession(FinishSessionPayload) returns (FinishSessionAck);
+}
+
+message SubmittedAnswer {
+  int64  question_id    = 1;
+  string answer_text    = 2;
+  string ai_reply       = 3;
+  int32  accuracy       = 4;
+  int32  answering_time = 5;
+  bool   was_rephrased  = 6;
+  bool   was_weak_topic = 7;
+}
+
+message AiGeneratedQuestion {
+  string        question_text = 1;
+  string        answer        = 2;
+  int32         category_id   = 3;
+  int32         difficulty_id = 4;
+  repeated int32 tag_ids      = 5;
+}
+
+message FinishSessionPayload {
+  int64                       session_id    = 1;
+  int32                       total_time    = 2;
+  repeated SubmittedAnswer    answers       = 3;
+  repeated AiGeneratedQuestion ai_questions = 4;
+}
+
+message FinishSessionAck {
+  bool   accepted = 1;
+  string message  = 2;
+}

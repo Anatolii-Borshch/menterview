@@ -1,0 +1,16 @@
+export const ADMIN_DASHBOARD_TEXT = {
+  TITLE: 'Admin dashboard',
+  SUBTITLE: 'Manage platform users, moderate pending questions, and maintain all reference entities from one place.',
+  SYSTEM_STATUS: 'System Status',
+  USERS: 'Users',
+  PENDING_QUESTIONS: 'Pending questions',
+  ENTITIES: 'Entities',
+  OPEN_USERS: 'Open users',
+  OPEN_MODERATION: 'Open moderation',
+  OPEN_ENTITIES: 'Open entities CRUD',
+  QUICK_ACTIONS: 'Quick actions',
+  MANAGE_USERS: 'Manage users',
+  REVIEW_PENDING_QUESTIONS: 'Review pending questions',
+  EDIT_ENTITIES: 'Edit entities',
+  FAILED_TO_LOAD_METRICS: 'Failed to load admin dashboard metrics.',
+} as const;
