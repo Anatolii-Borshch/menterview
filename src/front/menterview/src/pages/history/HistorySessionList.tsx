@@ -22,10 +22,10 @@ export const HistorySessionList = ({ sessions, onFormatTime, onFormatDate }: His
           </div>
           <div
             className={`rounded-full px-3 py-1 text-sm font-semibold ${getAccuracyBadgeClass(
-              session.averageAccuracy
+              session.averageAccuracy || 0
             )}`}
           >
-            {Math.round(session.averageAccuracy)}%
+            {session.averageAccuracy !== undefined && session.averageAccuracy !== null ? `${Math.round(session.averageAccuracy)}%` : '—'}
           </div>
         </div>
       </Link>

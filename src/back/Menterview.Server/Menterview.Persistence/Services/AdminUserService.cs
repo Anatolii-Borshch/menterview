@@ -36,8 +36,8 @@ public class AdminUserService : IAdminUserService
             FirstName = u.FirstName,
             LastName = u.LastName,
             Email = u.EmailAddress,
-            Role = new RoleDto { RoleId = u.RoleId, RoleName = u.Role.RoleName },
-            Category = new CategoryDto { CategoryId = u.CategoryId, CategoryName = u.Category.CategoryName },
+            RoleName = u.Role?.RoleName ?? string.Empty,
+            CategoryName = u.Category?.CategoryName ?? string.Empty,
             CreatedAt = u.CreatedAt,
             IsDeleted = u.IsDeleted
         });
@@ -65,13 +65,14 @@ public class AdminUserService : IAdminUserService
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.EmailAddress,
-            Role = new RoleDto { RoleId = user.RoleId, RoleName = user.Role.RoleName },
-            Category = new CategoryDto { CategoryId = user.CategoryId, CategoryName = user.Category.CategoryName },
+            RoleName = user.Role?.RoleName ?? string.Empty,
+            CategoryName = user.Category?.CategoryName ?? string.Empty,
             CreatedAt = user.CreatedAt,
             IsDeleted = user.IsDeleted,
             DeletedAt = user.DeletedAt,
-            TotalSessions = sessionCount,
-            OverallAverageAccuracy = 0
+            SessionCount = sessionCount,
+            DifficultyName = user.Difficulty?.DifficultyName ?? string.Empty,
+            LevelName = user.Level?.LevelName
         };
     }
 

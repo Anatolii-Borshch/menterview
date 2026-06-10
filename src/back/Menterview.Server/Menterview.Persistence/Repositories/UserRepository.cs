@@ -121,6 +121,7 @@ public class UserRepository : IUserRepository
             .Include(u => u.Category)
             .Include(u => u.Role)
             .Include(u => u.Difficulty)
+            .Include(u => u.Level)
             .Include(u => u.Setting)
             .AsNoTracking();
 

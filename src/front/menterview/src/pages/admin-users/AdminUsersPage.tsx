@@ -13,7 +13,7 @@ export default function AdminUsersPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const page = parseInt(searchParams.get('page') ?? '1', 10);
+  const page = Number.parseInt(searchParams.get('page') ?? '1', 10);
   const search = searchParams.get('search') ?? '';
 
   const load = useCallback(async () => {
@@ -66,17 +66,21 @@ export default function AdminUsersPage() {
         />
       </div>
 
-      {loading ? (
+      {loading && (
         <div className="space-y-2">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className="h-14 rounded-xl border border-periwinkle bg-white animate-pulse" />
+          {Array.from({ length: 8 }).map((_item, index) => (
+            <div key={`skeleton-${index}`} className="h-14 rounded-xl border border-periwinkle bg-white animate-pulse" />
           ))}
         </div>
-      ) : users.length === 0 ? (
+      )}
+
+      {!loading && users.length === 0 && (
         <div className="rounded-2xl border border-periwinkle bg-white p-12 text-center">
           <p className="text-sm text-navy/40">{ADMIN_USERS_TEXT.NO_USERS_FOUND}</p>
         </div>
-      ) : (
+      )}
+
+      {!loading && users.length > 0 && (
         <>
           <div className="overflow-hidden rounded-2xl border border-periwinkle bg-white">
             <table className="w-full text-sm">
@@ -106,9 +110,9 @@ export default function AdminUsersPage() {
                       </p>
                       <p className="text-xs text-navy/40">{user.email}</p>
                     </td>
-                    <td className="hidden px-4 py-3 text-navy/60 md:table-cell">{user.categoryName}</td>
+                    <td className="hidden px-4 py-3 text-navy/60 md:table-cell">{user.categoryName || '—'}</td>
                     <td className="px-4 py-3">
-                      <span className={getRoleBadgeClasses(user.roleName)}>{user.roleName}</span>
+                      <span className={getRoleBadgeClasses(user.roleName)}>{user.roleName || '—'}</span>
                     </td>
                     <td className="hidden px-4 py-3 text-xs text-navy/40 sm:table-cell">
                       {formatUserDate(user.createdAt)}

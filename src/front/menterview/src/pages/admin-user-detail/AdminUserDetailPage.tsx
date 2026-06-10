@@ -139,10 +139,9 @@ export default function AdminUserDetailPage() {
 
         <div className="space-y-3 text-sm">
           {[
-            { label: ADMIN_USER_DETAIL_TEXT.CATEGORY, value: user.categoryName },
+            { label: ADMIN_USER_DETAIL_TEXT.CATEGORY, value: user.categoryName || '—' },
             { label: ADMIN_USER_DETAIL_TEXT.LEVEL, value: user.levelName ?? ADMIN_USER_DETAIL_TEXT.NOT_SET },
-            { label: ADMIN_USER_DETAIL_TEXT.DIFFICULTY, value: user.difficultyName },
-            { label: ADMIN_USER_DETAIL_TEXT.SESSIONS, value: String(user.sessionCount) },
+            { label: ADMIN_USER_DETAIL_TEXT.SESSIONS, value: typeof user.sessionCount === 'number' ? String(user.sessionCount) : '—' },
             { label: ADMIN_USER_DETAIL_TEXT.JOINED, value: formatJoinedDate(user.createdAt) },
             {
               label: ADMIN_USER_DETAIL_TEXT.STATUS,

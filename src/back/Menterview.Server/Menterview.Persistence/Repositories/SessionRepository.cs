@@ -20,6 +20,7 @@ public class SessionRepository : ISessionRepository
         var query = _db.SessionStories
             .Include(s => s.Category)
             .Include(s => s.Difficulty)
+            .Include(s => s.Answers)
             .AsNoTracking()
             .Where(s => s.UserId == userId);
 

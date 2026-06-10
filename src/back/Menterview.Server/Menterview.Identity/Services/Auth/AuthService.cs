@@ -76,6 +76,9 @@ public class AuthService : IAuthService
         var user = await _userRepo.GetByEmailAsync(request.Email, ct)
                    ?? throw new UnauthorizedAccessException("Invalid credentials.");
 
+        if (user.IsDeleted)
+            throw new UnauthorizedAccessException("User does not exist.");
+
         var identityUser = await _userManager.FindByIdAsync(user.UserId.ToString())
                            ?? throw new UnauthorizedAccessException("Invalid credentials.");
 
@@ -94,7 +97,11 @@ public class AuthService : IAuthService
         var existing = await _userRepo.GetByEmailAsync(googleUser.Email, ct);
 
         if (existing is not null)
+        {
+            if (existing.IsDeleted)
+                throw new UnauthorizedAccessException("User does not exist.");
             return await IssueTokensAsync(existing, ct);
+        }
 
         var user = await _userRepo.CreateAsync(new CreateUserRequest(
             Email: googleUser.Email,
@@ -182,11 +189,11 @@ public class AuthService : IAuthService
         var refreshToken = await _refreshTokenRepo.GetActiveByTokenAsync(request.RefreshToken, ct)
                            ?? throw new UnauthorizedAccessException("Invalid or expired refresh token.");
 
-        var identityUser = await _userManager.FindByIdAsync(refreshToken.IdentityUserId)
-                           ?? throw new UnauthorizedAccessException("User not found.");
-
         var user = await _userRepo.GetByIdAsync(Guid.Parse(refreshToken.IdentityUserId))
                    ?? throw new UnauthorizedAccessException("User not found.");
+
+        if (user.IsDeleted)
+            throw new UnauthorizedAccessException("User does not exist.");
 
         refreshToken.RevokedAt = DateTime.UtcNow;
         await _refreshTokenRepo.SaveAsync(refreshToken, ct);
